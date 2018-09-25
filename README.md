@@ -1,2 +1,2 @@
 # Linear-Motor-Controller-
-Software for a linear motor control system using a atmega328p
+Software for a linear motor control system using a ATmega328P
