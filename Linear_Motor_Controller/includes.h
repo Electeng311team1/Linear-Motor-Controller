@@ -1,16 +1,20 @@
 /*
  * includes.h
  *
- * Created: 26/09/2018 4:51:00 PM
- *  Author: henzy
+ * Created: 26/09/2018 
+ *  Author: Team 1 
  */ 
 
+#include <avr/io.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <avr/interrupt.h>
 
-#ifndef INCLUDES_H_
-#define INCLUDES_H_
+/*UART Functions*/
+void uart_initiate(uint16_t UBRR_VALUE);
+void uart_transmit(char* message);
 
+/*ADC Functions*/
 
-
-
-
-#endif /* INCLUDES_H_ */

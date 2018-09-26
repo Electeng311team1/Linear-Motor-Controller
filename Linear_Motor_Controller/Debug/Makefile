@@ -37,7 +37,9 @@ SUBDIRS :=
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../main.c
+../ADC.c \
+../main.c \
+../UART.c
 
 
 PREPROCESSING_SRCS += 
@@ -47,16 +49,24 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-main.o
+ADC.o \
+main.o \
+UART.o
 
 OBJS_AS_ARGS +=  \
-main.o
+ADC.o \
+main.o \
+UART.o
 
 C_DEPS +=  \
-main.d
+ADC.d \
+main.d \
+UART.d
 
 C_DEPS_AS_ARGS +=  \
-main.d
+ADC.d \
+main.d \
+UART.d
 
 OUTPUT_FILE_PATH +=Linear_Motor_Controller.elf
 
@@ -72,6 +82,10 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
+
+
 
 
 
