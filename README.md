@@ -5,13 +5,16 @@ Henry adds a new branch
 
 today is the 26 of september 
 
+
+change the master branch
+
+Helena is changing master
+
 change in the test-branch
 
 change the master branch
 
-<<<<<<< HEAD
 hello world this is henry
-=======
 
 hello world this is team 1 
->>>>>>> test-branch
+
