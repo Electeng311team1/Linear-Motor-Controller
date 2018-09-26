@@ -16,9 +16,10 @@
 int main(void)
 {
 	uart_initiate(UBRR_VALUE);
-	char message[MAX_SIZE] = "Hello we are Team 1!\n\r";
+	sei();
     while (1){
-		uart_transmit(message);
+	char transmit_message[MAX_SIZE] = "Hello we are Team 1!\n\r";
+		uart_transmit(transmit_message);
     }
 }
 
