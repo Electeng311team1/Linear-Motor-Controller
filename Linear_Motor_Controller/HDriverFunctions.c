@@ -1,8 +1,10 @@
 #define F_CPU 8000000
 #include <util/delay.h>
+#include <math.h>
 
 #define DEAD_TIME_COUNT_1 208 //First deadtime of 3uS
 #define DEAD_TIME_COUNT_2  24//Second deadtime of 26uS
+#define MAGNITUDE_DELAY 0.2 //Additional proportional delay for second dead time to account for motor asymmetry
 
 //Volatile Global variables
 volatile uint16_t T_OFF1;
@@ -17,9 +19,11 @@ void driverTimers_Init(){
 	OCR1B = T_ON;
 }
 
-void setFrequency(frequency, dutyCycle){
-	T_ON = (1/frequency) - ((DEAD_TIME_COUNT_1 + DEAD_TIME_COUNT_2)/F_CPU)
-	//Find T_ON, T_OFF1, T_OFF2 from given frequency
+void setFrequency(float frequency, float dutyCycle){
+	double OFFTime = ((1/frequency) - 4*dutyCycle + 200)/ (4 + MAGNITUDE_DELAY) //Find T_ON, T_OFF1, T_OFF2 from given frequency
+	T_OFF1 = uint16_t(round(OFFTime));
+	T_OFF2 = uint16_t(round(OFFTime*(1.0+MAGNITUDE_DELAY)));
+	T_ON = 2*(dutyCycle-50) + T_OFF1;
 	OCR1B = T_ON;
 	OCR1A = T_ON + DEAD_TIME_COUNT_1*8 + T_OFF1;
 }
@@ -63,8 +67,9 @@ ISR(TIMER1_COMPA){
 }
 
 void driveHBridge(){
-	
-	setFrequency();//acquire on/off times or alternatively could manually set on and off times
+	float frequency = 12;
+	float dutyCycle= 50;
+	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
 	driverTimers_Init();
 	driverTimersInterrupts_Init();
 
