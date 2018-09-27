@@ -18,18 +18,19 @@ void clearFallTimeTimer(){ //executed after Pulse on output is turned off
 }
 
 void clearOnOffTimeTimer(){ //executed after Pulse on output is turned off
-	TCNT0 = 0;
+	TCNT1 = 0;
 }
 
 void driverTimersInterrupts_Init(){
 	sei();																		//Enable global interrupts
-	TIMSK0 |= (1<<OCIEA) | (1<<OCIEB);										// Enable dead time timer compare match interrupts
+	//TIMSK0 |= (1<<OCIEA) | (1<<OCIEB);										// Enable dead time timer compare match interrupts
 	TIMSK1 |= (1<<OCIEA) | (1<<OCIEB);										// Enable on/off time timer compare match interrupts
 	
 }
 
 ISR(TIMER0_COMPB){// Set up timer0 compare match ISRs
-	//Turn on signal
+	//Switch signals for dead time
+	TIMSK0 &=~ (1<<OCIEB);//disable Compare Value B interrupt until next period
 }	
 																		
 ISR(TIMER0_COMPA){
@@ -37,11 +38,12 @@ ISR(TIMER0_COMPA){
 }
 
 ISR(TIMER1_COMPB){// Set up timer0 compare match ISRs
-	//Turn on signal
+	//Turn signal for off time
+	
 }	
 																		
 ISR(TIMER1_COMPA){
-	//Turn on signal
+	//Turn signal for on time
 }
 
 void findOnOffTimes(){//Takes in a frequency to drive at and returns timer counter values to implement it  -could store in struct
@@ -50,11 +52,18 @@ void findOnOffTimes(){//Takes in a frequency to drive at and returns timer count
 
 void driveHBridge(){
 	
-	findOnOffTimes()//acquire on/off times
 	
-	OCR1B = ON_TIME;//set compare values for on and off times
-	OCR1A = OFF_TIME_1;
+	findOnOffTimes();//acquire on/off times or alternatively could manually set on and off times
 	
-	OCR1A = OFF_TIME_2;
-	clearOnOffTimeTimer(
+	OCR1B = ON_TIME+ DEAD_TIME_COUNT_1/8;//set compare values for on and off times
+	OCR1A = OFF_TIME_1+ON_TIME+ DEAD_TIME_COUNT_1/8;
+	//Turn outputs to on
+	//Turn outputs off
+	clearFallTimeTimer();//start fall time timer
+	TIMSK0 |= (1<<OCIEB); //enable fall time interrupt
+	
+	
+	OCR1A = OFF_TIME_2+ON_TIME+ DEAD_TIME_COUNT_2/8;//changing off time accounts for motor assymetry
+	
+	clearOnOffTimeTimer();
 }
