@@ -4,7 +4,7 @@
  * Created: 26/09/2018 
  *  Author: Team 1 
  */ 
- #define F_CPU 16000000
+#define F_CPU 8000000
 
 #include <avr/io.h>
 #include <stdlib.h>

@@ -11,16 +11,16 @@
 #define MAX_SIZE 30
 
 volatile char received_message[MAX_SIZE];
-volatile unsigned int i = 0;
+volatile unsigned int message_pos = 0;
 
 volatile uint8_t new_byte = false; 
 volatile uint8_t byte_received = 0;
 
 //This is the ISR for UART receive
 ISR(USART_RX_vect){
-	while(!RECEIVE_COMPLETE);
-	byte_received = UDR0;
-	new_byte = true;
+ 	while(!RECEIVE_COMPLETE);
+	received_message[message_pos] = UDR0;
+	message_pos++;
 }
 
 int main(void)
@@ -29,13 +29,29 @@ int main(void)
 
 	//Enable Global interrupts
 	sei();
-
     while (1){
-		if (new_byte == true){
-			new_byte = false;
-			uart_transmit_byte(byte_received);
-		}
+// 		if (new_byte == true){
+// 			new_byte = false;
+// 			uart_transmit_byte(byte_received);
+// 		}
 		
+		//Trying to distinguish between the message sent from usb and message sent from LLC
+		//Better way of clearing array or using message_pos required
+		if(received_message[message_pos] == '}'){
+			cli();
+			uart_transmit("Message sent from LLC {");
+			uart_transmit_byte(13);
+			uart_transmit_byte(10);
+			uart_transmit((char*) received_message);
+			message_pos = 0;
+			received_message[0] = '\0';
+			uart_transmit_byte(13);
+			uart_transmit_byte(10);
+			uart_transmit("} Message sent from LLC");
+			uart_transmit_byte(13);
+			uart_transmit_byte(10);
+			sei();
+		}
 	}
 }
 

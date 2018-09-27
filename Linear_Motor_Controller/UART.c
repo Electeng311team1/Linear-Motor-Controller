@@ -33,14 +33,13 @@ void uart_transmit(char* message){
 		while(UDR_FULL);
 		UDR0 = message[i];
 		i++;
-		_delay_ms(10);
 	}
 }
 
 //test function
 void uart_transmit_byte(uint8_t byte){
 	while((UCSR0A & 0x20) == 0){
-		;
+		
 	}
 	UDR0 = byte;
 }
