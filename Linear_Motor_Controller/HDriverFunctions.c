@@ -1,14 +1,14 @@
-#define F_CPU 16000000
+#define F_CPU 8000000
 #include <util/delay.h>
 
 #define DEAD_TIME_COUNT_1 208 //First deadtime of 3uS
 #define DEAD_TIME_COUNT_2  24//Second deadtime of 26uS
 
 //Volatile Global variables
-//T_OFF1
-//T_OFF2
-//T_ON
-bool isNegativeCycle = false;
+volatile uint16_t T_OFF1;
+volatile uint16_t T_OFF2;
+volatile uint16_t T_ON;
+volatile bool isNegativeCycle = false;
 
 void driverTimers_Init(){
 	TCCR0B |= (1<<CS00); //Set up 8bit timer to use 8MHZ clock
@@ -17,7 +17,8 @@ void driverTimers_Init(){
 	OCR1B = T_ON;
 }
 
-void setFrequency(){
+void setFrequency(frequency, dutyCycle){
+	T_ON = (1/frequency) - ((DEAD_TIME_COUNT_1 + DEAD_TIME_COUNT_2)/F_CPU)
 	//Find T_ON, T_OFF1, T_OFF2 from given frequency
 	OCR1B = T_ON;
 	OCR1A = T_ON + DEAD_TIME_COUNT_1*8 + T_OFF1;
