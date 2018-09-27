@@ -168,7 +168,7 @@ void uart_transmit(char* message){
   fc:	cf 93       	push	r28
   fe:	df 93       	push	r29
 	unsigned int i = 0;
-	while(message[i] != NULL){
+	while(message[i] != '\0'){
  100:	fc 01       	movw	r30, r24
  102:	20 81       	ld	r18, Z
  104:	22 23       	and	r18, r18
@@ -185,7 +185,7 @@ void uart_transmit(char* message){
 
 void uart_transmit(char* message){
 	unsigned int i = 0;
-	while(message[i] != NULL){
+	while(message[i] != '\0'){
 		while(UDR_FULL);
  114:	90 81       	ld	r25, Z
  116:	95 ff       	sbrs	r25, 5
@@ -209,7 +209,7 @@ void uart_transmit(char* message){
 
 void uart_transmit(char* message){
 	unsigned int i = 0;
-	while(message[i] != NULL){
+	while(message[i] != '\0'){
  128:	2d 91       	ld	r18, X+
  12a:	21 11       	cpse	r18, r1
  12c:	f3 cf       	rjmp	.-26     	; 0x114 <uart_transmit+0x18>
