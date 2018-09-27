@@ -18,3 +18,7 @@ void uart_transmit(char* message);
 
 /*ADC Functions*/
 
+/*HDdriver Functions*/
+void driverTimers_Init();
+void driverTimersInterrupts_Init()
+void setFrequency(float frequency, float dutyCycle)

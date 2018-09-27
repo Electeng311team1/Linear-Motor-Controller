@@ -1,6 +1,3 @@
-#define F_CPU 8000000
-#include <util/delay.h>
-#include <math.h>
 
 #define DEAD_TIME_COUNT_1 208 //First deadtime of 3uS
 #define DEAD_TIME_COUNT_2  24//Second deadtime of 26uS
@@ -64,17 +61,4 @@ ISR(TIMER1_COMPA){
 	} 
 	
 	TCNT1 = 0; //Reset on/off timer for second half of cycle
-}
-
-void driveHBridge(){
-	float frequency = 12;
-	float dutyCycle= 50;
-	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
-	driverTimers_Init();
-	driverTimersInterrupts_Init();
-
-	while(1){
-		//other operations
-	}
-
 }
