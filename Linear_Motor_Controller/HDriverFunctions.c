@@ -1,3 +1,4 @@
+#include "includes.h"
 
 #define DEAD_TIME_COUNT_HIGH 208 //First deadtime of 3uS
 #define DEAD_TIME_COUNT_LOW  24//Second deadtime of 26uS
@@ -35,8 +36,8 @@ void driverTimers_Init(){
 void setFrequency(float frequency, float dutyCycle){
 	MAGNITUDE_DELAY = 0.2; 
 	double OFFTime = ((1/frequency) - 4*dutyCycle + 200)/ (4 + MAGNITUDE_DELAY); //Find T_ON, T_OFF1, T_OFF2 from given frequency
-	T_OFF1 = uint16_t(round(OFFTime));
-	T_OFF2 = uint16_t(round(OFFTime*(1.0+MAGNITUDE_DELAY)));
+	T_OFF1 = (uint16_t) (round(OFFTime));
+	T_OFF2 = (uint16_t) (round(OFFTime*(1.0+MAGNITUDE_DELAY)));
 	T_ON = 2*(dutyCycle-50) + T_OFF1;
 	OCR1B = T_ON;
 	OCR1A = T_ON + DEAD_TIME_COUNT_HIGH*8 + T_OFF1;
@@ -74,7 +75,7 @@ ISR(TIMER0_COMPA_vect){
 
 ISR(TIMER1_COMPB_vect){// Set up timer0 compare match ISRs
 	if (isNegativeCycle){		//set timer 1 on/off timer compare value to correct value 
-		TOGGLE_SW2
+		TOGGLE_SW2;
 		OCR1A = T_ON + (DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8 + T_OFF1;
 	} else {
 		OCR1A = T_ON + (DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8 + T_OFF2;

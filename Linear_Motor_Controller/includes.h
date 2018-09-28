@@ -11,6 +11,7 @@
 #include <math.h>
 #include <string.h>
 #include <avr/interrupt.h>
+#include <stdbool.h> 
 
 /*UART Functions*/
 void uart_initiate(uint16_t UBRR_VALUE);
