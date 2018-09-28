@@ -22,6 +22,7 @@ int main(void)
 	
 	float frequency = 12;
 	float dutyCycle= 50;
+	
 	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
 	driverTimers_Init();
 	driverTimersInterrupts_Init();
