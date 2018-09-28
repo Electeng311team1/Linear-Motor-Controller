@@ -38,9 +38,7 @@ void uart_transmit(char* message){
 
 //test function
 void uart_transmit_byte(uint8_t byte){
-	while((UCSR0A & 0x20) == 0){
-		
-	}
+	while((UCSR0A & 0x20) == 0);
 	UDR0 = byte;
 }
 
