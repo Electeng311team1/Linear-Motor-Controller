@@ -12,7 +12,7 @@
 #include <math.h>
 #include <string.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
+#include <util/delay.h> //Remove in final version
 #include <stdbool.h>
 
 /*UART Defines*/
@@ -25,8 +25,10 @@
 /*UART Functions*/
 void uart_initiate(uint16_t UBRR_VALUE);
 void uart_transmit(char* message);
+void uart_flush(void);
 
 //Test function 
 void uart_transmit_byte(uint8_t byte);
+
 /*ADC Functions*/
 

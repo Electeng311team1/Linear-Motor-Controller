@@ -12,6 +12,7 @@
 void uart_initiate(uint16_t UBRR_VALUE){
 
 	UCSR0A = 0x00;
+	
 	//Setting up UBRR value
 	UBRR0L = UBRR_VALUE;
 
@@ -36,9 +37,19 @@ void uart_transmit(char* message){
 	}
 }
 
+//This function flushes the UART buffer
+void uart_flush(void){
+	UCSR0B &= ~(1 << RXEN0);
+	UCSR0B |= (1 << RXEN0);
+}
+
 //test function
 void uart_transmit_byte(uint8_t byte){
-	while((UCSR0A & 0x20) == 0);
+	while((UCSR0A & 0x20) == 0){
+		;
+	}
+	_delay_ms(10);
 	UDR0 = byte;
+
 }
 
