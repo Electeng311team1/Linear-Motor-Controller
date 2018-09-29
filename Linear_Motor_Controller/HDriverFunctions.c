@@ -72,7 +72,6 @@ ISR(TIMER0_COMPA_vect){
 ISR(TIMER1_COMPB_vect){// Set up timer0 compare match ISRs
  	if (isNegativeCycle){		//set timer 1 on/off timer compare value to correct value 
  		TOGGLE_SW2; //turn off SW2
-		_delay_us(500);
 		//OCR1A = T_ON + (DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8 + T_OFF1;
  	} else {
  		//OCR1A = T_ON + (DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8 + T_OFF2;
