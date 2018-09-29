@@ -30,7 +30,7 @@ void driverTimers_Init(){
 }
 
 void setFrequency(float frequency, float dutyCycle){
-// 	double OFFTime = ((1/frequency) - 4*dutyCycle + 200)/ (4 + MAGNITUDE_DELAY); //Find T_ON, T_OFF1, T_OFF2 from given frequency
+// 	double OFFTime = ((1/frequency) + 200)/ (4 + MAGNITUDE_DELAY); //Find T_ON, T_OFF1, T_OFF2 from given frequency
 // 	T_OFF1 = (uint16_t) (round(OFFTime));
 // 	T_OFF2 = (uint16_t) (round(OFFTime*(1.0+MAGNITUDE_DELAY)));
 // 	T_ON = 2*(dutyCycle-50) + T_OFF1;
