@@ -30,14 +30,14 @@ void driverTimers_Init(){
 }
 
 void setFrequency(float frequency, float dutyCycle){
-// 	double OFFTime = ((1/frequency) + 200)/ (4 + MAGNITUDE_DELAY); //Find T_ON, T_OFF1, T_OFF2 from given frequency
-// 	T_OFF1 = (uint16_t) (round(OFFTime));
-// 	T_OFF2 = (uint16_t) (round(OFFTime*(1.0+MAGNITUDE_DELAY)));
-// 	T_ON = 2*(dutyCycle-50) + T_OFF1;
-	T_ON = 20000;
-	OCR1A = 20000+T_ON;
+	float OFFTime = 1000.0/ (frequency*(2+ MAGNITUDE_DELAY + (2*dutyCycle)/(1-dutyCycle))); //Find T_ON, T_OFF1, T_OFF2 from given frequency
+ 	T_OFF1 = (uint16_t) (round(1000*OFFTime)); 
+// 	T_OFF2 = (uint16_t) (round(OFFTime*1000.0 * (1.0+MAGNITUDE_DELAY)));
+// 	
+	T_ON = dutyCycle * T_OFF1/ (1-dutyCycle);
+	OCR1A = T_ON + T_OFF1;
 	OCR1B = T_ON;
-	//OCR1A = T_ON + DEAD_TIME_COUNT_HIGH*8 + T_OFF1;
+	//OCR1A = T_ON + (DEAD_TIME_COUNT_HIGH*8) + T_OFF1;
 }
 
 void driverTimersInterrupts_Init(){
