@@ -27,10 +27,10 @@ void driverTimers_Init(){
 	DDRB = (1 << DDB0); //Configuring driver pins to output
 	DDRD = (1 << DDD5) | (1 << DDD6) | (1 << DDD7);
 			//CLEAR ALL OUTPUT PINS except for switch 4
-	PORTB &= ~(1<<PB0);
+	PORTB |= (1<<PB0);
 	PORTD &= ~(1<<PD5);
-	PORTD |= (1<<PD7);
-	PORTD &= ~(1<<PD6);
+	PORTD &= ~(1<<PD7);
+	PORTD |= (1<<PD6);
 	
 	isNegativeCycle = false; 
 	
@@ -52,75 +52,71 @@ void driverTimersInterrupts_Init(){
 	sei();																		//Enable global interrupts	
 	TIMSK1 |= (1<<OCIE1A) | (1<<OCIE1B);	// Enable on/off time timer compare match interrupts
 							
-	TOGGLE_SW2;
+	//TOGGLE_SW2;
 }
 
   ISR(TIMER0_COMPB_vect){
 	TIMSK0 &= ~(1<<OCIE0B);
-	TOGGLE_SW2;
-	_delay_ms(2);
-	TOGGLE_SW2;
+	TCNT1 = 0;
 	
-// 	 //TOGGLE_SW2;
-// 	// OCR1A = T_ON;
-//  	TIMSK0 &=~ (1<<OCIE0B);	//disable low dead time interrupt
-//  		//isNegativeCycle = ~isNegativeCycle; //switching to next half cycle
+	
 // // 		
-// // 		if (isNegativeCycle){		//Set pins for next half cycle
-// // 			TOGGLE_SW2; //sets pins for positive cycle
-// // 			} else {
-// // 			TOGGLE_SW1;//set pins on for positive cycle
-// // 		}
+		if (isNegativeCycle){		//Set pins for next half cycle
+			TOGGLE_SW1; //sets pins for positive cycle
+			} else {
+			TOGGLE_SW2;//set pins on for positive cycle
+		}
 // // 		
-// // 		TCNT1 = 0; //Reset on/off timer for second half of cycle
-// // 
+// // 		
+
+		isNegativeCycle = !isNegativeCycle; //set flag to indicate next half cycle
+		//TCNT1 = 0; //Reset on/off timer for second half of cycle
   }
 
  																		
-// ISR(TIMER0_COMPA_vect){
-// 	TIMSK0 &=~ (1<<OCIE0A);	
-// 	if (isNegativeCycle){
-// 		TOGGLE_SW4;
-// 	} else {
-// 		TOGGLE_SW3; 
-// 	}									// Disable high dead time timer interrupts
-// 
-// }
+ISR(TIMER0_COMPA_vect){
+	TIMSK0 &= ~(1<<OCIE0A);	//turn off compare A interrupt enable
+	if (isNegativeCycle){
+		TOGGLE_SW4;
+	} else {
+		TOGGLE_SW3; 
+	}									// Disable high dead time timer interrupts
+
+}
 
 ISR(TIMER1_COMPB_vect){// Set up timer0 compare match ISRs
-	TOGGLE_SW2;
-	TIMSK0 |= (1<<OCIE0B);
-// 	if (isNegativeCycle){		//set timer 1 on/off timer compare value to correct value 
-// 		TOGGLE_SW2; //turn off SW2
+	//TOGGLE_SW1;
+	//TIMSK0 |= (1<<OCIE0B);
+ 	if (isNegativeCycle){		//set timer 1 on/off timer compare value to correct value 
+ 		TOGGLE_SW2; //turn off SW2
 // 		_delay_us(500);
 // 		//OCR1A = T_ON + (DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8 + T_OFF1;
-// 	} else {
+ 	} else {
 // 		//OCR1A = T_ON + (DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8 + T_OFF2;
-// 		TOGGLE_SW1; //TURN OFF SWITCH 1
+ 		TOGGLE_SW1; //TURN OFF SWITCH 1
 // 		_delay_us(500);
-// 	}
+ 	}
 // 	
 	
 	
-	//TCNT0=0; 													//clear counter to start dead time timer
-	//TIMSK0 |= (1<<OCIE0A);										// Enable dead time timer compare match A interrupts
+	TCNT0=0; 													//clear counter to start dead time timer
+	TIMSK0 |= (1<<OCIE0A);										// Enable dead time timer compare match A interrupts
 }	
 
 	
 ISR(TIMER1_COMPA_vect){
-// 		if (isNegativeCycle){
-// 			TOGGLE_SW3;
-// 			_delay_us(500);
-// 		} else {
-// 			TOGGLE_SW4; //turns off switch 4
-// 			_delay_us(500);
-// 			TOGGLE_SW2;
-// 		}
-// 		//	TCNT0 = 0 ; //reset timer 0
-// 		//	TIMSK0 = (1<<OCIE0B); //enable low deadtime timer interrupts
- 		
-			TOGGLE_SW2;
-			TCNT1 = 0; 
-			isNegativeCycle = !isNegativeCycle;
+		if (isNegativeCycle){
+ 			TOGGLE_SW3;
+ 			//_delay_us(500);
+ 		} else {
+ 			TOGGLE_SW4; //turns off switch 4
+ 			//TOGGLE_SW2;
+ 		}
+ 			TCNT0 = 0 ; //reset timer 0
+ 			TIMSK0 = (1<<OCIE0B); //enable low deadtime timer interrupts
+  		
+			//TOGGLE_SW2;
+			 
+			
 			
 }
