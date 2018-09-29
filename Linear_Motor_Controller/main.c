@@ -7,11 +7,12 @@
 
 #include "includes.h"
 
-#define F_CPU 8000000
+
 #define BAUD_RATE 9600
 #define UBRR_VALUE F_CPU/16/BAUD_RATE-1
 
 #define MAX_SIZE 30
+
 
 int main(void)
 {

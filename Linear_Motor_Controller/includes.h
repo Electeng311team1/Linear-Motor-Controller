@@ -4,6 +4,7 @@
  * Created: 26/09/2018 
  *  Author: Team 1 
  */ 
+#define F_CPU 8000000
 
 #include <avr/io.h>
 #include <stdlib.h>
@@ -12,6 +13,7 @@
 #include <string.h>
 #include <avr/interrupt.h>
 #include <stdbool.h> 
+#include <util/delay.h>
 
 /*UART Functions*/
 void uart_initiate(uint16_t UBRR_VALUE);
