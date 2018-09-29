@@ -25,3 +25,5 @@ void uart_transmit(char* message);
 void driverTimers_Init();
 void driverTimersInterrupts_Init();
 void setFrequency(float frequency, float dutyCycle);
+
+volatile bool isNegativeCycle;

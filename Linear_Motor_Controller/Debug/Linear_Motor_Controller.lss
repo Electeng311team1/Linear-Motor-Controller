@@ -3,31 +3,31 @@ Linear_Motor_Controller.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  000001e4  2**0
+  0 .data         00000000  00800100  00800100  0000024e  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000170  00000000  00000000  00000074  2**1
+  1 .text         000001da  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          0000000b  00800100  00800100  000001e4  2**0
+  2 .bss          0000000b  00800100  00800100  0000024e  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  000001e4  2**0
+  3 .comment      00000030  00000000  00000000  0000024e  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000214  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000280  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000060  00000000  00000000  00000254  2**0
+  5 .debug_aranges 00000068  00000000  00000000  000002c0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000008ae  00000000  00000000  000002b4  2**0
+  6 .debug_info   00000967  00000000  00000000  00000328  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000006da  00000000  00000000  00000b62  2**0
+  7 .debug_abbrev 00000772  00000000  00000000  00000c8f  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000002e6  00000000  00000000  0000123c  2**0
+  8 .debug_line   000003a7  00000000  00000000  00001401  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000000b0  00000000  00000000  00001524  2**2
+  9 .debug_frame  000000ec  00000000  00000000  000017a8  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000447  00000000  00000000  000015d4  2**0
+ 10 .debug_str    0000049e  00000000  00000000  00001894  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000092  00000000  00000000  00001a1b  2**0
+ 11 .debug_loc    00000155  00000000  00000000  00001d32  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000040  00000000  00000000  00001aad  2**0
+ 12 .debug_ranges 00000048  00000000  00000000  00001e87  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -44,11 +44,11 @@ Disassembly of section .text:
   20:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   24:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   28:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
-  2c:	0c 94 91 00 	jmp	0x122	; 0x122 <__vector_11>
-  30:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  2c:	0c 94 c0 00 	jmp	0x180	; 0x180 <__vector_11>
+  30:	0c 94 a5 00 	jmp	0x14a	; 0x14a <__vector_12>
   34:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   38:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
-  3c:	0c 94 7a 00 	jmp	0xf4	; 0xf4 <__vector_15>
+  3c:	0c 94 81 00 	jmp	0x102	; 0x102 <__vector_15>
   40:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   44:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   48:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
@@ -81,184 +81,262 @@ Disassembly of section .text:
   7e:	ab 30       	cpi	r26, 0x0B	; 11
   80:	b2 07       	cpc	r27, r18
   82:	e1 f7       	brne	.-8      	; 0x7c <.do_clear_bss_loop>
-  84:	0e 94 a7 00 	call	0x14e	; 0x14e <main>
-  88:	0c 94 b6 00 	jmp	0x16c	; 0x16c <_exit>
+  84:	0e 94 dc 00 	call	0x1b8	; 0x1b8 <main>
+  88:	0c 94 eb 00 	jmp	0x1d6	; 0x1d6 <_exit>
 
 0000008c <__bad_interrupt>:
   8c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 00000090 <driverTimers_Init>:
+
+
+volatile float MAGNITUDE_DELAY;
+
 void driverTimers_Init(){
-// 	TCCR0B |= (1<<CS00); //Set up 8bit timer to use 8MHZ clock
-// 	OCR0A = DEAD_TIME_COUNT_HIGH;	
-// 	OCR0B = DEAD_TIME_COUNT_LOW;			//Initializing dead times which remain constant		
+ 	TCCR0B |= (1<<CS00); //Set up 8bit timer to use 8MHZ clock
+  90:	85 b5       	in	r24, 0x25	; 37
+  92:	81 60       	ori	r24, 0x01	; 1
+  94:	85 bd       	out	0x25, r24	; 37
+ 	//OCR0A = 255; //DEAD_TIME_COUNT_HIGH;	
+ 	OCR0B = 255; //DEAD_TIME_COUNT_LOW;			//Initializing dead times which remain constant		
+  96:	8f ef       	ldi	r24, 0xFF	; 255
+  98:	88 bd       	out	0x28, r24	; 40
 
 	TCCR1B |= (1<<CS11);//Set up 16 bit timer with pre-scaler 8
-  90:	e1 e8       	ldi	r30, 0x81	; 129
-  92:	f0 e0       	ldi	r31, 0x00	; 0
-  94:	80 81       	ld	r24, Z
-  96:	82 60       	ori	r24, 0x02	; 2
-  98:	80 83       	st	Z, r24
+  9a:	e1 e8       	ldi	r30, 0x81	; 129
+  9c:	f0 e0       	ldi	r31, 0x00	; 0
+  9e:	80 81       	ld	r24, Z
+  a0:	82 60       	ori	r24, 0x02	; 2
+  a2:	80 83       	st	Z, r24
 	DDRB = (1 << DDB0); //Configuring driver pins to output
-  9a:	81 e0       	ldi	r24, 0x01	; 1
-  9c:	84 b9       	out	0x04, r24	; 4
+  a4:	81 e0       	ldi	r24, 0x01	; 1
+  a6:	84 b9       	out	0x04, r24	; 4
 	DDRD = (1 << DDD5) | (1 << DDD6) | (1 << DDD7);
-  9e:	80 ee       	ldi	r24, 0xE0	; 224
-  a0:	8a b9       	out	0x0a, r24	; 10
+  a8:	80 ee       	ldi	r24, 0xE0	; 224
+  aa:	8a b9       	out	0x0a, r24	; 10
 			//CLEAR ALL OUTPUT PINS except for switch 4
 	PORTB &= ~(1<<PB0);
-  a2:	28 98       	cbi	0x05, 0	; 5
+  ac:	28 98       	cbi	0x05, 0	; 5
 	PORTD &= ~(1<<PD5);
-  a4:	5d 98       	cbi	0x0b, 5	; 11
+  ae:	5d 98       	cbi	0x0b, 5	; 11
 	PORTD |= (1<<PD7);
-  a6:	5f 9a       	sbi	0x0b, 7	; 11
+  b0:	5f 9a       	sbi	0x0b, 7	; 11
 	PORTD &= ~(1<<PD6);
-  a8:	5e 98       	cbi	0x0b, 6	; 11
-  aa:	08 95       	ret
+  b2:	5e 98       	cbi	0x0b, 6	; 11
+	
+	isNegativeCycle = false; 
+  b4:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <isNegativeCycle>
+  b8:	08 95       	ret
 
-000000ac <setFrequency>:
+000000ba <setFrequency>:
 // 	MAGNITUDE_DELAY = 0.2; 
 // 	double OFFTime = ((1/frequency) - 4*dutyCycle + 200)/ (4 + MAGNITUDE_DELAY); //Find T_ON, T_OFF1, T_OFF2 from given frequency
 // 	T_OFF1 = (uint16_t) (round(OFFTime));
 // 	T_OFF2 = (uint16_t) (round(OFFTime*(1.0+MAGNITUDE_DELAY)));
 // 	T_ON = 2*(dutyCycle-50) + T_OFF1;
 	T_ON = 30000;
-  ac:	80 e3       	ldi	r24, 0x30	; 48
-  ae:	95 e7       	ldi	r25, 0x75	; 117
-  b0:	90 93 08 01 	sts	0x0108, r25	; 0x800108 <T_ON+0x1>
-  b4:	80 93 07 01 	sts	0x0107, r24	; 0x800107 <T_ON>
+  ba:	80 e3       	ldi	r24, 0x30	; 48
+  bc:	95 e7       	ldi	r25, 0x75	; 117
+  be:	90 93 08 01 	sts	0x0108, r25	; 0x800108 <T_ON+0x1>
+  c2:	80 93 07 01 	sts	0x0107, r24	; 0x800107 <T_ON>
 	OCR1A = 20000+T_ON;
-  b8:	80 91 07 01 	lds	r24, 0x0107	; 0x800107 <T_ON>
-  bc:	90 91 08 01 	lds	r25, 0x0108	; 0x800108 <T_ON+0x1>
-  c0:	80 5e       	subi	r24, 0xE0	; 224
-  c2:	91 4b       	sbci	r25, 0xB1	; 177
-  c4:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7e0089>
-  c8:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7e0088>
+  c6:	80 91 07 01 	lds	r24, 0x0107	; 0x800107 <T_ON>
+  ca:	90 91 08 01 	lds	r25, 0x0108	; 0x800108 <T_ON+0x1>
+  ce:	80 5e       	subi	r24, 0xE0	; 224
+  d0:	91 4b       	sbci	r25, 0xB1	; 177
+  d2:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7e0089>
+  d6:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7e0088>
 	OCR1B = T_ON;
-  cc:	80 91 07 01 	lds	r24, 0x0107	; 0x800107 <T_ON>
-  d0:	90 91 08 01 	lds	r25, 0x0108	; 0x800108 <T_ON+0x1>
-  d4:	90 93 8b 00 	sts	0x008B, r25	; 0x80008b <__TEXT_REGION_LENGTH__+0x7e008b>
-  d8:	80 93 8a 00 	sts	0x008A, r24	; 0x80008a <__TEXT_REGION_LENGTH__+0x7e008a>
-  dc:	08 95       	ret
+  da:	80 91 07 01 	lds	r24, 0x0107	; 0x800107 <T_ON>
+  de:	90 91 08 01 	lds	r25, 0x0108	; 0x800108 <T_ON+0x1>
+  e2:	90 93 8b 00 	sts	0x008B, r25	; 0x80008b <__TEXT_REGION_LENGTH__+0x7e008b>
+  e6:	80 93 8a 00 	sts	0x008A, r24	; 0x80008a <__TEXT_REGION_LENGTH__+0x7e008a>
+  ea:	08 95       	ret
 
-000000de <driverTimersInterrupts_Init>:
+000000ec <driverTimersInterrupts_Init>:
 	//OCR1A = T_ON + DEAD_TIME_COUNT_HIGH*8 + T_OFF1;
 }
 
 void driverTimersInterrupts_Init(){
 	sei();																		//Enable global interrupts	
-  de:	78 94       	sei
+  ec:	78 94       	sei
 	TIMSK1 |= (1<<OCIE1A) | (1<<OCIE1B);	// Enable on/off time timer compare match interrupts
-  e0:	ef e6       	ldi	r30, 0x6F	; 111
-  e2:	f0 e0       	ldi	r31, 0x00	; 0
-  e4:	80 81       	ld	r24, Z
-  e6:	86 60       	ori	r24, 0x06	; 6
-  e8:	80 83       	st	Z, r24
+  ee:	ef e6       	ldi	r30, 0x6F	; 111
+  f0:	f0 e0       	ldi	r31, 0x00	; 0
+  f2:	80 81       	ld	r24, Z
+  f4:	86 60       	ori	r24, 0x06	; 6
+  f6:	80 83       	st	Z, r24
 							
 	TOGGLE_SW2;
-  ea:	9b b1       	in	r25, 0x0b	; 11
-  ec:	80 e2       	ldi	r24, 0x20	; 32
-  ee:	89 27       	eor	r24, r25
-  f0:	8b b9       	out	0x0b, r24	; 11
-  f2:	08 95       	ret
+  f8:	9b b1       	in	r25, 0x0b	; 11
+  fa:	80 e2       	ldi	r24, 0x20	; 32
+  fc:	89 27       	eor	r24, r25
+  fe:	8b b9       	out	0x0b, r24	; 11
+ 100:	08 95       	ret
 
-000000f4 <__vector_15>:
+00000102 <__vector_15>:
 }
 
- ISR(TIMER0_COMPB_vect){
-  f4:	1f 92       	push	r1
-  f6:	0f 92       	push	r0
-  f8:	0f b6       	in	r0, 0x3f	; 63
-  fa:	0f 92       	push	r0
-  fc:	11 24       	eor	r1, r1
-  fe:	8f 93       	push	r24
- 100:	9f 93       	push	r25
-	 TOGGLE_SW2;
- 102:	9b b1       	in	r25, 0x0b	; 11
- 104:	80 e2       	ldi	r24, 0x20	; 32
- 106:	89 27       	eor	r24, r25
- 108:	8b b9       	out	0x0b, r24	; 11
-	// OCR1A = T_ON;
-// 	TIMSK0 &=~ (1<<OCIE0B);	//disable low dead time interrupt
- 		isNegativeCycle = ~isNegativeCycle; //switching to next half cycle
- 10a:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <_edata>
- 10e:	81 e0       	ldi	r24, 0x01	; 1
- 110:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <_edata>
-// 			TOGGLE_SW1;//set pins on for positive cycle
-// 		}
-// 		
-// 		TCNT1 = 0; //Reset on/off timer for second half of cycle
-// 
- }
- 114:	9f 91       	pop	r25
- 116:	8f 91       	pop	r24
- 118:	0f 90       	pop	r0
- 11a:	0f be       	out	0x3f, r0	; 63
- 11c:	0f 90       	pop	r0
- 11e:	1f 90       	pop	r1
- 120:	18 95       	reti
+  ISR(TIMER0_COMPB_vect){
+ 102:	1f 92       	push	r1
+ 104:	0f 92       	push	r0
+ 106:	0f b6       	in	r0, 0x3f	; 63
+ 108:	0f 92       	push	r0
+ 10a:	11 24       	eor	r1, r1
+ 10c:	8f 93       	push	r24
+ 10e:	9f 93       	push	r25
+ 110:	ef 93       	push	r30
+ 112:	ff 93       	push	r31
+	TIMSK0 &= ~(1<<OCIE0B);
+ 114:	ee e6       	ldi	r30, 0x6E	; 110
+ 116:	f0 e0       	ldi	r31, 0x00	; 0
+ 118:	80 81       	ld	r24, Z
+ 11a:	8b 7f       	andi	r24, 0xFB	; 251
+ 11c:	80 83       	st	Z, r24
+	TOGGLE_SW2;
+ 11e:	9b b1       	in	r25, 0x0b	; 11
+ 120:	80 e2       	ldi	r24, 0x20	; 32
+ 122:	98 27       	eor	r25, r24
+ 124:	9b b9       	out	0x0b, r25	; 11
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
 
-00000122 <__vector_11>:
-// 	//TCNT0=0; 													//clear counter to start dead time timer
-// 	//TIMSK0 |= (1<<OCIE0A);										// Enable dead time timer compare match A interrupts
-// }	
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 126:	ef e9       	ldi	r30, 0x9F	; 159
+ 128:	ff e0       	ldi	r31, 0x0F	; 15
+ 12a:	31 97       	sbiw	r30, 0x01	; 1
+ 12c:	f1 f7       	brne	.-4      	; 0x12a <__vector_15+0x28>
+ 12e:	00 c0       	rjmp	.+0      	; 0x130 <__vector_15+0x2e>
+ 130:	00 00       	nop
+	_delay_ms(2);
+	TOGGLE_SW2;
+ 132:	9b b1       	in	r25, 0x0b	; 11
+ 134:	89 27       	eor	r24, r25
+ 136:	8b b9       	out	0x0b, r24	; 11
+// // 			TOGGLE_SW1;//set pins on for positive cycle
+// // 		}
+// // 		
+// // 		TCNT1 = 0; //Reset on/off timer for second half of cycle
+// // 
+  }
+ 138:	ff 91       	pop	r31
+ 13a:	ef 91       	pop	r30
+ 13c:	9f 91       	pop	r25
+ 13e:	8f 91       	pop	r24
+ 140:	0f 90       	pop	r0
+ 142:	0f be       	out	0x3f, r0	; 63
+ 144:	0f 90       	pop	r0
+ 146:	1f 90       	pop	r1
+ 148:	18 95       	reti
+
+0000014a <__vector_12>:
+// 		TOGGLE_SW3; 
+// 	}									// Disable high dead time timer interrupts
+// 
+// }
+
+ISR(TIMER1_COMPB_vect){// Set up timer0 compare match ISRs
+ 14a:	1f 92       	push	r1
+ 14c:	0f 92       	push	r0
+ 14e:	0f b6       	in	r0, 0x3f	; 63
+ 150:	0f 92       	push	r0
+ 152:	11 24       	eor	r1, r1
+ 154:	8f 93       	push	r24
+ 156:	9f 93       	push	r25
+ 158:	ef 93       	push	r30
+ 15a:	ff 93       	push	r31
+	TOGGLE_SW2;
+ 15c:	9b b1       	in	r25, 0x0b	; 11
+ 15e:	80 e2       	ldi	r24, 0x20	; 32
+ 160:	89 27       	eor	r24, r25
+ 162:	8b b9       	out	0x0b, r24	; 11
+	TIMSK0 |= (1<<OCIE0B);
+ 164:	ee e6       	ldi	r30, 0x6E	; 110
+ 166:	f0 e0       	ldi	r31, 0x00	; 0
+ 168:	80 81       	ld	r24, Z
+ 16a:	84 60       	ori	r24, 0x04	; 4
+ 16c:	80 83       	st	Z, r24
+// 	
+	
+	
+	//TCNT0=0; 													//clear counter to start dead time timer
+	//TIMSK0 |= (1<<OCIE0A);										// Enable dead time timer compare match A interrupts
+}	
+ 16e:	ff 91       	pop	r31
+ 170:	ef 91       	pop	r30
+ 172:	9f 91       	pop	r25
+ 174:	8f 91       	pop	r24
+ 176:	0f 90       	pop	r0
+ 178:	0f be       	out	0x3f, r0	; 63
+ 17a:	0f 90       	pop	r0
+ 17c:	1f 90       	pop	r1
+ 17e:	18 95       	reti
+
+00000180 <__vector_11>:
 
 	
 ISR(TIMER1_COMPA_vect){
- 122:	1f 92       	push	r1
- 124:	0f 92       	push	r0
- 126:	0f b6       	in	r0, 0x3f	; 63
- 128:	0f 92       	push	r0
- 12a:	11 24       	eor	r1, r1
- 12c:	8f 93       	push	r24
- 12e:	9f 93       	push	r25
+ 180:	1f 92       	push	r1
+ 182:	0f 92       	push	r0
+ 184:	0f b6       	in	r0, 0x3f	; 63
+ 186:	0f 92       	push	r0
+ 188:	11 24       	eor	r1, r1
+ 18a:	8f 93       	push	r24
+ 18c:	9f 93       	push	r25
 // 			TOGGLE_SW2;
 // 		}
 // 		//	TCNT0 = 0 ; //reset timer 0
 // 		//	TIMSK0 = (1<<OCIE0B); //enable low deadtime timer interrupts
-// 		isNegativeCycle = ~isNegativeCycle;
+ 		
 		TOGGLE_SW2;
- 130:	9b b1       	in	r25, 0x0b	; 11
- 132:	80 e2       	ldi	r24, 0x20	; 32
- 134:	89 27       	eor	r24, r25
- 136:	8b b9       	out	0x0b, r24	; 11
+ 18e:	9b b1       	in	r25, 0x0b	; 11
+ 190:	80 e2       	ldi	r24, 0x20	; 32
+ 192:	89 27       	eor	r24, r25
+ 194:	8b b9       	out	0x0b, r24	; 11
 			TCNT1 = 0; 
- 138:	10 92 85 00 	sts	0x0085, r1	; 0x800085 <__TEXT_REGION_LENGTH__+0x7e0085>
- 13c:	10 92 84 00 	sts	0x0084, r1	; 0x800084 <__TEXT_REGION_LENGTH__+0x7e0084>
+ 196:	10 92 85 00 	sts	0x0085, r1	; 0x800085 <__TEXT_REGION_LENGTH__+0x7e0085>
+ 19a:	10 92 84 00 	sts	0x0084, r1	; 0x800084 <__TEXT_REGION_LENGTH__+0x7e0084>
+			isNegativeCycle = !isNegativeCycle;
+ 19e:	90 91 04 01 	lds	r25, 0x0104	; 0x800104 <isNegativeCycle>
+ 1a2:	81 e0       	ldi	r24, 0x01	; 1
+ 1a4:	89 27       	eor	r24, r25
+ 1a6:	80 93 04 01 	sts	0x0104, r24	; 0x800104 <isNegativeCycle>
 			
 }
- 140:	9f 91       	pop	r25
- 142:	8f 91       	pop	r24
- 144:	0f 90       	pop	r0
- 146:	0f be       	out	0x3f, r0	; 63
- 148:	0f 90       	pop	r0
- 14a:	1f 90       	pop	r1
- 14c:	18 95       	reti
+ 1aa:	9f 91       	pop	r25
+ 1ac:	8f 91       	pop	r24
+ 1ae:	0f 90       	pop	r0
+ 1b0:	0f be       	out	0x3f, r0	; 63
+ 1b2:	0f 90       	pop	r0
+ 1b4:	1f 90       	pop	r1
+ 1b6:	18 95       	reti
 
-0000014e <main>:
+000001b8 <main>:
 	*/
 	
 	float frequency = 12;
 	float dutyCycle= 50;
 	
 	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
- 14e:	20 e0       	ldi	r18, 0x00	; 0
- 150:	30 e0       	ldi	r19, 0x00	; 0
- 152:	48 e4       	ldi	r20, 0x48	; 72
- 154:	52 e4       	ldi	r21, 0x42	; 66
- 156:	60 e0       	ldi	r22, 0x00	; 0
- 158:	70 e0       	ldi	r23, 0x00	; 0
- 15a:	80 e4       	ldi	r24, 0x40	; 64
- 15c:	91 e4       	ldi	r25, 0x41	; 65
- 15e:	0e 94 56 00 	call	0xac	; 0xac <setFrequency>
+ 1b8:	20 e0       	ldi	r18, 0x00	; 0
+ 1ba:	30 e0       	ldi	r19, 0x00	; 0
+ 1bc:	48 e4       	ldi	r20, 0x48	; 72
+ 1be:	52 e4       	ldi	r21, 0x42	; 66
+ 1c0:	60 e0       	ldi	r22, 0x00	; 0
+ 1c2:	70 e0       	ldi	r23, 0x00	; 0
+ 1c4:	80 e4       	ldi	r24, 0x40	; 64
+ 1c6:	91 e4       	ldi	r25, 0x41	; 65
+ 1c8:	0e 94 5d 00 	call	0xba	; 0xba <setFrequency>
 	driverTimers_Init();
- 162:	0e 94 48 00 	call	0x90	; 0x90 <driverTimers_Init>
+ 1cc:	0e 94 48 00 	call	0x90	; 0x90 <driverTimers_Init>
 	driverTimersInterrupts_Init();
- 166:	0e 94 6f 00 	call	0xde	; 0xde <driverTimersInterrupts_Init>
- 16a:	ff cf       	rjmp	.-2      	; 0x16a <main+0x1c>
+ 1d0:	0e 94 76 00 	call	0xec	; 0xec <driverTimersInterrupts_Init>
+ 1d4:	ff cf       	rjmp	.-2      	; 0x1d4 <main+0x1c>
 
-0000016c <_exit>:
- 16c:	f8 94       	cli
+000001d6 <_exit>:
+ 1d6:	f8 94       	cli
 
-0000016e <__stop_program>:
- 16e:	ff cf       	rjmp	.-2      	; 0x16e <__stop_program>
+000001d8 <__stop_program>:
+ 1d8:	ff cf       	rjmp	.-2      	; 0x1d8 <__stop_program>
