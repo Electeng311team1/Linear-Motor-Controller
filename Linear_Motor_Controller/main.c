@@ -13,9 +13,6 @@
 
 #define MAX_SIZE 30
 
-//volatile bool isNegativeCycle;
-
-
 int main(void)
 {
 	/*

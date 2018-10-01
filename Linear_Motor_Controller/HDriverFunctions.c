@@ -1,7 +1,7 @@
 #include "includes.h"
 
-#define DEAD_TIME_COUNT_HIGH 208 //First deadtime of 3uS
-#define DEAD_TIME_COUNT_LOW  24//Second deadtime of 26uS
+#define DEAD_TIME_COUNT_HIGH 208 //First dead time of 26uS
+#define DEAD_TIME_COUNT_LOW  24//Second dead time of 3uS
 #define MAGNITUDE_DELAY 0.4 //Additional proportional delay for second dead time to account for motor asymmetry
 
 #define TOGGLE_SW1 PORTB ^= (1<<PB0)
@@ -47,7 +47,7 @@ void driverTimersInterrupts_Init(){
 
 }
 
-  ISR(TIMER0_COMPB_vect){
+ISR(TIMER0_COMPB_vect){
 	TIMSK0 &= ~(1<<OCIE0B);
 	TCNT1 = 0; //clear timer 1 count  to start next half cycle
  		
@@ -57,7 +57,7 @@ void driverTimersInterrupts_Init(){
 			TOGGLE_SW2;//set pins on for positive cycle
 		}
 		isNegativeCycle = !isNegativeCycle; //set flag to indicate next half cycle
-  }
+}
 
  																		
 ISR(TIMER0_COMPA_vect){
@@ -92,5 +92,5 @@ ISR(TIMER1_COMPA_vect){
  			TOGGLE_SW4; //turns off SW4
  		}
  			TCNT0 = 0 ; //reset timer 0
- 			TIMSK0 = (1<<OCIE0B); //enable low deadtime timer interrupts		
+ 			TIMSK0 |= (1<<OCIE0B); //enable low deadtime timer interrupts		
 }

@@ -10,7 +10,7 @@
 #include <util/delay.h>
 
 
-//Checking to see if the tranmission is complete
+//Checking to see if the transmission is complete
 #define UDR_FULL !(UCSR0A & (1 << UDRE0))
 
 void uart_initiate(uint16_t UBRR_VALUE){
@@ -29,11 +29,10 @@ void uart_initiate(uint16_t UBRR_VALUE){
 
 void uart_transmit(char* message){
 	unsigned int i = 0;
-	while(message[i] != NULL){
+	while(message[i] != '\0'){
 		while(UDR_FULL);
 		UDR0 = message[i];
 		i++;
-		_delay_ms(10);
 	}
 
 }
