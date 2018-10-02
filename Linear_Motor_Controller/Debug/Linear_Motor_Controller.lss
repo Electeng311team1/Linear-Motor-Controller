@@ -497,13 +497,13 @@ ISR(TIMER1_COMPA_vect){
 	*/
 	
 	float frequency = 9;
-	float dutyCycle= 0.3; //must be greater than 0, less that 1
+	float dutyCycle= 0.5; //must be greater than 0, less that 1
 	
 	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
- 366:	2a e9       	ldi	r18, 0x9A	; 154
- 368:	39 e9       	ldi	r19, 0x99	; 153
- 36a:	49 e9       	ldi	r20, 0x99	; 153
- 36c:	5e e3       	ldi	r21, 0x3E	; 62
+ 366:	20 e0       	ldi	r18, 0x00	; 0
+ 368:	30 e0       	ldi	r19, 0x00	; 0
+ 36a:	40 e0       	ldi	r20, 0x00	; 0
+ 36c:	5f e3       	ldi	r21, 0x3F	; 63
  36e:	60 e0       	ldi	r22, 0x00	; 0
  370:	70 e0       	ldi	r23, 0x00	; 0
  372:	80 e1       	ldi	r24, 0x10	; 16
