@@ -30,7 +30,24 @@ int main(void)
 	driverTimers_Init();
 	driverTimersInterrupts_Init();
 	
+	void adc_Init();
+	
+	
     while (1){
+		
+		//if messaged received requesting dutycycle
+		//setFrequency(frequency, dutyCycle);
+		
+		getRawData();	
+		
+		modTime();															// Modulus time array with AC_freq_count to facilitate 'folding' the data into one period
+		sortArray();														// Manipulate arrays into time-order
+		adc_Calculate();													// Adjust voltage and current data to real-world values
+
+		uint16_t power_value = calculatePower();						// Calculate power/voltage/current values, need to be x100 for display
+		uint16_t voltage_value = calculateVoltage();
+		uint16_t current_value = calculateCurrent();
+		
 		//uart_transmit(message);
     }
 }
