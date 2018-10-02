@@ -12,9 +12,9 @@
 
 
 void driverTimers_Init(){
- 	TCCR0B |= (1<<CS00); //Set up 8bit timer to use 8MHZ clock
- 	OCR0A = DEAD_TIME_COUNT_HIGH; //DEAD_TIME_COUNT_HIGH;	
- 	OCR0B = DEAD_TIME_COUNT_LOW; //DEAD_TIME_COUNT_LOW;			//Initializing dead times which remain constant		
+ 	TCCR2B |= (1<<CS20); //Start 8bit timer using 8MHZ clock
+ 	OCR2A = DEAD_TIME_COUNT_HIGH; //DEAD_TIME_COUNT_HIGH;	
+ 	OCR2B = DEAD_TIME_COUNT_LOW; //DEAD_TIME_COUNT_LOW;			//Initializing dead times which remain constant		
 
 	TCCR1B |= (1<<CS11);//Set up 16 bit timer with pre-scaler 8
 	DDRB = (1 << DDB0); //Configuring driver pins to output
@@ -47,8 +47,8 @@ void driverTimersInterrupts_Init(){
 
 }
 
-  ISR(TIMER0_COMPB_vect){
-	TIMSK0 &= ~(1<<OCIE0B);
+  ISR(TIMER2_COMPB_vect){
+	TIMSK2 &= ~(1<<OCIE2B);
 	TCNT1 = 0; //clear timer 1 count  to start next half cycle
  		
 		if (isNegativeCycle){		//Set pins for next half cycle
@@ -60,8 +60,8 @@ void driverTimersInterrupts_Init(){
   }
 
  																		
-ISR(TIMER0_COMPA_vect){
-	TIMSK0 &= ~(1<<OCIE0A);	// Disable high dead time timer interrupts
+ISR(TIMER2_COMPA_vect){
+	TIMSK2 &= ~(1<<OCIE2A);	// Disable high dead time timer interrupts
 	if (isNegativeCycle){
 		TOGGLE_SW4; //turn on SW4
 	} else {
@@ -79,8 +79,8 @@ ISR(TIMER1_COMPB_vect){
 		 OCR1A = T_ON + T_OFF1;
  	}
 
-	TCNT0=0; 													//clear counter to start dead time timer
-	TIMSK0 |= (1<<OCIE0A);										// Enable dead time timer compare match A interrupts
+	TCNT2=0; 													//clear counter to start dead time timer
+	TIMSK2 |= (1<<OCIE2A);										// Enable dead time timer compare match A interrupts
 }	
 
 	
@@ -91,6 +91,6 @@ ISR(TIMER1_COMPA_vect){
  		} else {
  			TOGGLE_SW4; //turns off SW4
  		}
- 			TCNT0 = 0 ; //reset timer 0
- 			TIMSK0 = (1<<OCIE0B); //enable low deadtime timer interrupts		
+ 			TCNT2 = 0 ; //reset timer 0
+ 			TIMSK2 = (1<<OCIE2B); //enable low deadtime timer interrupts		
 }

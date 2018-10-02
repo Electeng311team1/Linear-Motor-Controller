@@ -30,6 +30,8 @@ void getRawData();
 uint8_t current[SAMPLING_SIZE];
 uint8_t currentTime[SAMPLING_SIZE];
 uint8_t switchingPointTimes[4];
+uint8_t voltage[15];
+uint8_t voltageTime[15];
 
 
 /*HDdriver Functions*/

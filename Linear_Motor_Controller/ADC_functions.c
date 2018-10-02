@@ -23,13 +23,36 @@ void adc_SetChannel(uint8_t channel){
 	}
 }
 
-double adc_Read(uint8_t channel_sel){
-	adc_SetChannel(channel_sel);									// Set channel to read from
-	ADCSRA |= (1<<ADSC);											// Start conversion
-	while (!(ADCSRA & (1<<ADIF)));									// Wait for conversion to finish (polling)
-	uint16_t tempADC = ADC;											//Store the value in a temporary variable
+  ISR(TIMER0_COMPA_vect){
+	TCCR0B &= ~(1<<CS01);
+	TCCR0B &= ~(1<<CS00); //Stop timer 
+	
+  }
+  
+  ISR(ADC_vect){
+	  //disable adc conversion complete interrupts
+	  
+	 // uint16_t tempADC = ADC;	//Store the value in a temporary variable
+	 
+	 if (channel_sel==1){
+	 	  	voltage[i] = adc_Read(1);								//Voltage reads in values from ADC1
+	  		voltageTime[i] = TCNT0;									//Load in values from TCNT0
+	 } else {
+		 	current[i] = double tempADC;							//Current reads in values from ADC0
+		 	currentTime[i] = TCNT0;									//Load in values from TCNT0
+	 }
 
-	return (double)tempADC;
+}
+  
+  
+adc_Read(uint8_t channel_sel){
+	
+	TCCR0B |= (1<<CS00) |											//Start timer wit 64 prescaler
+	
+	adc_SetChannel(channel_sel);									// Set channel to read from
+	TCNT0 = 0;
+	//ENABLE AUTO TRIGGER
+	//ADCSRA |= (1<<ADSC);											// Start conversion
 }
 
 
@@ -55,10 +78,6 @@ void getRawData(){
 	uint8_t j = TCNT0 + AC_freq_count;
 
 	while(TCNT0 <= AC_freq_count) {								//Repeated three times with a delay between each, creating a staggered set of data
-		current[i] = adc_Read(0);								//Current reads in values from ADC2
-		currentTime[i] = TCNT0;									//Load in values from TCNT0
-		voltage[i] = adc_Read(1);								//Voltage reads in values from ADC1
-		voltageTime[i] = TCNT0;									//Load in values from TCNT0
 
 		i++;
 	}
