@@ -20,6 +20,17 @@ void uart_initiate(uint16_t UBRR_VALUE);
 void uart_transmit(char* message);
 
 /*ADC Functions*/
+void adc_Init();
+void adc_SetChannel(uint8_t channel);
+double adc_Read(uint8_t channel_sel);
+void adc_Calculate();
+void getRawData();
+
+/*ADC Volatile variables*/
+uint8_t current[SAMPLING_SIZE];
+uint8_t currentTime[SAMPLING_SIZE];
+uint8_t switchingPointTimes[4];
+
 
 /*HDdriver Functions*/
 void driverTimers_Init();

@@ -12,6 +12,7 @@
 #define UBRR_VALUE F_CPU/16/BAUD_RATE-1
 
 #define MAX_SIZE 30
+#define SAMPLING_SIZE 100
 
 //volatile bool isNegativeCycle;
 
