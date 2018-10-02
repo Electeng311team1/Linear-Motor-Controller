@@ -6,4 +6,8 @@ Current Features
 
 -added uart receive interrupt to work for one character
 
--Changed F_CPU to 8Mhz, Removed 10ms delay in uart_transmit, Attempted to make receive interrupt work with char array
+-2/10/2018 added uart receive interupt functionality to work with a message
+    -errors when message may not be formatted correctly
+        -characters following a completed message are causing corruption of message
+        -terminal is receiving what we are transmitting as well as what the microcontroller is sending
+        
