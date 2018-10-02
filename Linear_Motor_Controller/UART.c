@@ -48,8 +48,6 @@ void uart_transmit_byte(uint8_t byte){
 	while((UCSR0A & 0x20) == 0){
 		;
 	}
-	_delay_ms(10);
 	UDR0 = byte;
-
 }
 
