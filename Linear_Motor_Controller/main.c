@@ -8,7 +8,8 @@
 #include "includes.h"
 #define BAUD_RATE 9600
 #define UBRR_VALUE F_CPU/16/BAUD_RATE-1
-#define MAX_SIZE 30
+#define MAX_SIZE 255
+#define VERSION "1.1.2"
 
 volatile char received_message[MAX_SIZE];
 volatile uint8_t message_index = 0;
@@ -60,26 +61,27 @@ int main(void)
     while (1){
 		if(message_complete == true){
 			UCSR0B &= ~(1 << RXEN0);
-			UCSR0B &= ~(1<<RXCIE0);
+			_delay_ms(100);
 			uart_transmit("\n\r");
 			uart_transmit("From Microcontroller: ");
 			uart_transmit((char*)received_message);
 			uart_transmit("\n\r");
 			message_complete = false;
-			receive_error = false;
 			message_start = false;
 			message_index = 0;
 			UCSR0B |= (1 << RXEN0);
-			UCSR0B |= (1 << RXCIE0);
 		}
 		else if(receive_error == true){
+			UCSR0B &= ~(1 << RXEN0);
+			_delay_ms(100);
+			uart_transmit("\n\r");
 			uart_transmit("From Microcontroller: ");
 			uart_transmit("Error! The command is invalid");
 			uart_transmit("\n\r");
-			message_complete = false;
 			receive_error = false;
 			message_start = false;
 			net_brackets = 0;
+			UCSR0B |= (1 << RXEN0);
 		} 
 	}
 }

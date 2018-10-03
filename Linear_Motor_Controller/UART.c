@@ -8,9 +8,10 @@
 #include "includes.h"
 #define MAX_SIZE 30
 
+static char comparison_command[MAX_SIZE] = "{\"x\":{\"mfc\":{\"req\":\"xxx\"},\"clr\":\"xx\"}}"; 
+
 //This function initializes UART receive and transmit 
 void uart_initiate(uint16_t UBRR_VALUE){
-
 	UCSR0A = 0x00;
 	
 	//Setting up UBRR value
@@ -37,17 +38,11 @@ void uart_transmit(char* message){
 	}
 }
 
-//This function flushes the UART buffer
-void uart_flush(void){
-	UCSR0B &= ~(1 << RXEN0);
-	UCSR0B |= (1 << RXEN0);
-}
+//This function processes a message received by UART
+void process_message(char* message, int* mfc){
+	unsigned int i = 1;
+	uint8_t valid_message = false;
+	uint8_t mfc = false;
 
-//test function
-void uart_transmit_byte(uint8_t byte){
-	while((UCSR0A & 0x20) == 0){
-		;
-	}
-	UDR0 = byte;
+	
 }
-

@@ -25,10 +25,11 @@
 /*UART Functions*/
 void uart_initiate(uint16_t UBRR_VALUE);
 void uart_transmit(char* message);
-void uart_flush(void);
 
-//Test function 
-void uart_transmit_byte(uint8_t byte);
+/*Message Processing Functions*/
+void process_message(char* message, int* mfc);
 
 /*ADC Functions*/
 
+
+/*Test Functions*/ 
