@@ -23,14 +23,17 @@ int main(void)
 	char message[MAX_SIZE] = "Hello we are Team 1!\n\r";
 	*/
 	
-	float frequency = 13;
-	float dutyCycle= 0.5; //must be greater than 0, less that 1
-	
-	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
-	driverTimers_Init();
-	driverTimersInterrupts_Init();
+
 	
     while (1){
+		float frequency = 13;
+		float dutyCycle= 0.5; //must be greater than 0, less that 1
+	
+		setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
+		driverTimers_Init();
+		driverTimersInterrupts_Init();
+		
+		//while (message 
 		//uart_transmit(message);
     }
 }
