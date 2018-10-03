@@ -93,7 +93,7 @@ double calculateCurrentRMS(){ //Perform a calculation for rms voltage by square 
 		for (uint8_t i = 0; i < SAMPLING_SIZE; i++){
 			
 			if ((i%10) ==0)		{
-				
+				rmsCurrent += (current[i+1] + current[i-1])*(current[i+1] + current[i-1])/4.0; //uses average of adjacent values for missing ADC result
 			} else {
 				rmsCurrent += (current[i] * current[i]);
 			}						
@@ -101,7 +101,7 @@ double calculateCurrentRMS(){ //Perform a calculation for rms voltage by square 
 		}
 
 		rmsCurrent = rmsCurrent/(SAMPLING_SIZE);									
-		rmsCurrent = sqrt(rmsCurrent);															
+		rmsCurrent = sqrt(rmsCurrent)*c_scaler*adc_convert;															
 		
 		return rmsCurrent;													//Return 10x the value so it work with usart_transmit function
 }
