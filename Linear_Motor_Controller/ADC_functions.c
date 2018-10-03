@@ -10,64 +10,62 @@ void adc_Init(){
 	ADMUX |=  (1<<REFS0);											// Reference selection to external AVcc
 	ADCSRA |= (1<<ADPS2)|(1<<ADPS0);								// ADC prescaler selection divide by 32 for 250khz sampling rate
 	ADCSRA |= (1<<ADEN);											// ADC enable
-	ADMUX &= 0b11110000;
+	ADMUX |= (1<<ADLAR);											//left adjust ADC register to read 10 bit value
 	
 	ADCSRA |= (1<<ADIE); //enable ADC interrupts
 	ADCSRA |= (1<<ADATE); //enable ADC Auto trigger
 	ADCSRB |= (1<<ADTS1) | (1<<ADTS0); //set Autotrigger to fire when Timer 0 compare interrupt executes
 	
 	//set up autotrigger source Timer 0
-	OCR0A |= (uint8_t) round(F_CPU/(64.0*SAMPLING_SIZE*OPERATING_FREQUENCY)); //set compare value to ensure ADC converts at  time intervals to evenly distribute sampling across a given period  
+	TCCR0B |= (1<<CS00) | (1<<CS01);										//Start timer with 64 prescaler
+	
 	TIMSK0 |= (1<<OCIE0A);	//enable Timer 0 compare A interrupt
+	OCR0A |= (uint8_t) round(F_CPU/(64.0*SAMPLING_SIZE*OPERATING_FREQUENCY)); //set compare value to ensure ADC converts at  time intervals to evenly distribute sampling across a given period  
+	TCNT0 = 0;//
 }
 
 void adc_SetChannel(uint8_t channel){
 	if(channel == 1){
-		ADMUX |= (1<<ADC1);												// Mux select for voltage channel 1		
+			
 		} else {
-		ADMUX &= ~(1<<ADC1);												// Mux select for current channel 0
+		
 	}
 }
 
   ISR(TIMER0_COMPA_vect){
-	ADCSRA &= ~(1<<ADATE); //disable adc auto trigger
-	//TIMSK0 &= ~(1<<OCIE0A);
-	TCCR0B &= ~(1<<CS01);
-	TCCR0B &= ~(1<<CS00); //Stop timer 
-	
+	TCNT0=0;
+	ovf_count++;
   }
   
   ISR(ADC_vect){
 	  //disable adc conversion complete interrupts
 	  
 	 // uint16_t tempADC = ADC;	//Store the value in a temporary variable
-	
-			 
-	 if (channel_sel==1){
-	 	  	voltage[i] = adc_Read(1);								//Voltage reads in values from ADC1
-	  		voltageTime[i] = TCNT0;									//Load in values from TCNT0
+	if (isCalculating==0){
+		ADCSRA &= ~(1<<ADATE); //disable adc auto trigger	 
+	 if ((i%10) ==0){
+	 	  	voltage[i/10] = ADC;								//Voltage reads in values from ADC1 (once every 9 current readings)
+	  		voltageTime[i/10] = TCNT0 + i*ovf_count;									//Load in values from TCNT0
+			 ADMUX &= ~(1<<MUX0);												// Mux select for current channel 0 next sample
 	 } else {
-		 	current[i] = double tempADC;							//Current reads in values from ADC0
-		 	currentTime[i] = TCNT0;									//Load in values from TCNT0
+		 	current[i] = ADC;							//Current reads in values from ADC0
+		 	currentTime[i] = TCNT0 + i*ovf_count;	
+			if ((i%10) ==9){
+				 ADMUX |= (1<<MUX0);												// preparing to sample voltage next from channel 1	
+			}							
 	 }
 	 i++;
 	 
 	 if (i==SAMPLING_SIZE){
 		 ADCSRA |= (1<<ADATE); //enable auto trigger for adc to convert at next interval
-		 calculating = 1;
+		 isCalculating = 1;	//switch to parameter calculation mode
+		 i=0;
+		 ovf_count=0;
 	 }
+	 
+	}
 
-}
-  
-  
-adc_Read(uint8_t channel_sel){
-	
-	TCCR0B |= (1<<CS00) |											//Start timer wit 64 prescaler
-	
-	adc_SetChannel(channel_sel);									// Set channel to read from
-	TCNT0 = 0;
-	//ENABLE AUTO TRIGGER
-	//ADCSRA |= (1<<ADSC);											// Start conversion
+
 }
 
 

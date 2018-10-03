@@ -28,10 +28,10 @@ void getRawData();
 
 /*ADC Volatile variables*/
 #define SAMPLING_SIZE 150
-uint8_t current[SAMPLING_SIZE];
+uint16_t current[SAMPLING_SIZE];
 uint8_t currentTime[SAMPLING_SIZE];
 uint8_t switchingPointTimes[4];
-uint8_t voltage[15];
+uint16_t voltage[15];
 uint8_t voltageTime[15];
 volatile uint8_t channel_sel;
 volatile uint8_t calculating;
