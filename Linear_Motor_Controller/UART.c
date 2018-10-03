@@ -6,9 +6,9 @@
  */ 
 
 #include "includes.h"
-#define MAX_SIZE 30
+#define MAX_SIZE 50
 
-static char comparison_command[MAX_SIZE] = "{\"x\":{\"mfc\":{\"req\":\"xxx\"},\"clr\":\"xx\"}}"; 
+//static char comparison_command[MAX_SIZE] = "{\"x\":{\"mfc\":{\"req\":\"xxx\"},\"clr\":\"xx\"}}"; 
 
 //This function initializes UART receive and transmit 
 void uart_initiate(uint16_t UBRR_VALUE){
@@ -40,9 +40,11 @@ void uart_transmit(char* message){
 
 //This function processes a message received by UART
 void process_message(char* message, int* mfc){
-	unsigned int i = 1;
-	uint8_t valid_message = false;
-	uint8_t mfc = false;
+	//Format message like {xxx}
+	char tmp[3];
+	for(int i = 1; i < 4; i++){
 
-	
+		 tmp[i-1] = message[i];
+	}
+	mfc = (int*)tmp;
 }

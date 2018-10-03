@@ -11,12 +11,15 @@
 #define MAX_SIZE 255
 #define VERSION "1.1.2"
 
+//For UART receive 
 volatile char received_message[MAX_SIZE];
 volatile uint8_t message_index = 0;
 volatile uint8_t net_brackets = 0;
 volatile uint8_t message_complete = false;
 volatile uint8_t receive_error = false;
 volatile uint8_t message_start = false;
+
+unsigned int mfc = 0;
 
 //ISR for UART receive
 ISR(USART_RX_vect){
@@ -63,8 +66,11 @@ int main(void)
 			UCSR0B &= ~(1 << RXEN0);
 			_delay_ms(100);
 			uart_transmit("\n\r");
+			uart_transmit(VERSION);
+			uart_transmit("\n\r");
 			uart_transmit("From Microcontroller: ");
 			uart_transmit((char*)received_message);
+			process_message((char*)received_message, (int*)mfc);
 			uart_transmit("\n\r");
 			message_complete = false;
 			message_start = false;
@@ -84,6 +90,8 @@ int main(void)
 			UCSR0B |= (1 << RXEN0);
 		} 
 	}
+
+
 }
 
 

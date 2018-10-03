@@ -3,31 +3,31 @@ Linear_Motor_Controller.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000038  00800100  00000274  00000308  2**0
+  0 .data         0000003e  00800100  00000296  0000032a  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000274  00000000  00000000  00000094  2**1
+  1 .text         00000296  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000023  00800138  00800138  00000340  2**0
+  2 .bss          00000106  0080013e  0080013e  00000368  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  00000340  2**0
+  3 .comment      00000030  00000000  00000000  00000368  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000370  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000398  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000058  00000000  00000000  000003b0  2**0
+  5 .debug_aranges 00000058  00000000  00000000  000003d8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000a22  00000000  00000000  00000408  2**0
+  6 .debug_info   00000ad0  00000000  00000000  00000430  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000007a6  00000000  00000000  00000e2a  2**0
+  7 .debug_abbrev 000007cd  00000000  00000000  00000f00  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000491  00000000  00000000  000015d0  2**0
+  8 .debug_line   000004a3  00000000  00000000  000016cd  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000000a4  00000000  00000000  00001a64  2**2
+  9 .debug_frame  000000a4  00000000  00000000  00001b70  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000451  00000000  00000000  00001b08  2**0
+ 10 .debug_str    00000451  00000000  00000000  00001c14  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000019c  00000000  00000000  00001f59  2**0
+ 11 .debug_loc    000001c4  00000000  00000000  00002065  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000038  00000000  00000000  000020f5  2**0
+ 12 .debug_ranges 00000038  00000000  00000000  00002229  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -72,18 +72,18 @@ Disassembly of section .text:
   74:	11 e0       	ldi	r17, 0x01	; 1
   76:	a0 e0       	ldi	r26, 0x00	; 0
   78:	b1 e0       	ldi	r27, 0x01	; 1
-  7a:	e4 e7       	ldi	r30, 0x74	; 116
+  7a:	e6 e9       	ldi	r30, 0x96	; 150
   7c:	f2 e0       	ldi	r31, 0x02	; 2
   7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
   80:	05 90       	lpm	r0, Z+
   82:	0d 92       	st	X+, r0
-  84:	a8 33       	cpi	r26, 0x38	; 56
+  84:	ae 33       	cpi	r26, 0x3E	; 62
   86:	b1 07       	cpc	r27, r17
   88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
 
 0000008a <__do_clear_bss>:
-  8a:	21 e0       	ldi	r18, 0x01	; 1
-  8c:	a8 e3       	ldi	r26, 0x38	; 56
+  8a:	22 e0       	ldi	r18, 0x02	; 2
+  8c:	ae e3       	ldi	r26, 0x3E	; 62
   8e:	b1 e0       	ldi	r27, 0x01	; 1
   90:	01 c0       	rjmp	.+2      	; 0x94 <.do_clear_bss_start>
 
@@ -91,19 +91,19 @@ Disassembly of section .text:
   92:	1d 92       	st	X+, r1
 
 00000094 <.do_clear_bss_start>:
-  94:	ab 35       	cpi	r26, 0x5B	; 91
+  94:	a4 34       	cpi	r26, 0x44	; 68
   96:	b2 07       	cpc	r27, r18
   98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
   9a:	0e 94 b2 00 	call	0x164	; 0x164 <main>
-  9e:	0c 94 38 01 	jmp	0x270	; 0x270 <_exit>
+  9e:	0c 94 49 01 	jmp	0x292	; 0x292 <_exit>
 
 000000a2 <__bad_interrupt>:
   a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000a6 <__vector_18>:
-volatile uint8_t message_complete = false;
-volatile uint8_t receive_error = false;
 volatile uint8_t message_start = false;
+
+unsigned int mfc = 0;
 
 //ISR for UART receive
 ISR(USART_RX_vect){
@@ -119,84 +119,84 @@ ISR(USART_RX_vect){
 	char tmp = UDR0; 
   b8:	80 91 c6 00 	lds	r24, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7e00c6>
 	if(message_complete == false){
-  bc:	90 91 3a 01 	lds	r25, 0x013A	; 0x80013a <message_complete>
+  bc:	90 91 42 01 	lds	r25, 0x0142	; 0x800142 <message_complete>
   c0:	91 11       	cpse	r25, r1
   c2:	47 c0       	rjmp	.+142    	; 0x152 <__vector_18+0xac>
 		if(tmp == '{'){
   c4:	8b 37       	cpi	r24, 0x7B	; 123
   c6:	49 f4       	brne	.+18     	; 0xda <__vector_18+0x34>
 			net_brackets++;
-  c8:	90 91 3b 01 	lds	r25, 0x013B	; 0x80013b <net_brackets>
+  c8:	90 91 43 01 	lds	r25, 0x0143	; 0x800143 <net_brackets>
   cc:	9f 5f       	subi	r25, 0xFF	; 255
-  ce:	90 93 3b 01 	sts	0x013B, r25	; 0x80013b <net_brackets>
+  ce:	90 93 43 01 	sts	0x0143, r25	; 0x800143 <net_brackets>
 			message_start = true;
   d2:	91 e0       	ldi	r25, 0x01	; 1
-  d4:	90 93 38 01 	sts	0x0138, r25	; 0x800138 <__data_end>
+  d4:	90 93 40 01 	sts	0x0140, r25	; 0x800140 <message_start>
   d8:	12 c0       	rjmp	.+36     	; 0xfe <__vector_18+0x58>
 		}
 		else if((tmp == '}') && (message_start == true)){
   da:	8d 37       	cpi	r24, 0x7D	; 125
   dc:	81 f4       	brne	.+32     	; 0xfe <__vector_18+0x58>
-  de:	90 91 38 01 	lds	r25, 0x0138	; 0x800138 <__data_end>
+  de:	90 91 40 01 	lds	r25, 0x0140	; 0x800140 <message_start>
   e2:	91 30       	cpi	r25, 0x01	; 1
   e4:	61 f4       	brne	.+24     	; 0xfe <__vector_18+0x58>
 			net_brackets--;
-  e6:	90 91 3b 01 	lds	r25, 0x013B	; 0x80013b <net_brackets>
+  e6:	90 91 43 01 	lds	r25, 0x0143	; 0x800143 <net_brackets>
   ea:	91 50       	subi	r25, 0x01	; 1
-  ec:	90 93 3b 01 	sts	0x013B, r25	; 0x80013b <net_brackets>
+  ec:	90 93 43 01 	sts	0x0143, r25	; 0x800143 <net_brackets>
 			if(net_brackets == 0){
-  f0:	90 91 3b 01 	lds	r25, 0x013B	; 0x80013b <net_brackets>
+  f0:	90 91 43 01 	lds	r25, 0x0143	; 0x800143 <net_brackets>
   f4:	91 11       	cpse	r25, r1
   f6:	03 c0       	rjmp	.+6      	; 0xfe <__vector_18+0x58>
 				message_complete = true;
   f8:	91 e0       	ldi	r25, 0x01	; 1
-  fa:	90 93 3a 01 	sts	0x013A, r25	; 0x80013a <message_complete>
+  fa:	90 93 42 01 	sts	0x0142, r25	; 0x800142 <message_complete>
 			}
 		}
 
 		if(message_start == true){
-  fe:	90 91 38 01 	lds	r25, 0x0138	; 0x800138 <__data_end>
+  fe:	90 91 40 01 	lds	r25, 0x0140	; 0x800140 <message_start>
  102:	91 30       	cpi	r25, 0x01	; 1
  104:	a9 f4       	brne	.+42     	; 0x130 <__vector_18+0x8a>
 			received_message[message_index] = tmp;
- 106:	e0 91 3c 01 	lds	r30, 0x013C	; 0x80013c <message_index>
+ 106:	e0 91 44 01 	lds	r30, 0x0144	; 0x800144 <message_index>
  10a:	f0 e0       	ldi	r31, 0x00	; 0
- 10c:	e3 5c       	subi	r30, 0xC3	; 195
+ 10c:	eb 5b       	subi	r30, 0xBB	; 187
  10e:	fe 4f       	sbci	r31, 0xFE	; 254
  110:	80 83       	st	Z, r24
 			message_index++;
- 112:	80 91 3c 01 	lds	r24, 0x013C	; 0x80013c <message_index>
+ 112:	80 91 44 01 	lds	r24, 0x0144	; 0x800144 <message_index>
  116:	8f 5f       	subi	r24, 0xFF	; 255
- 118:	80 93 3c 01 	sts	0x013C, r24	; 0x80013c <message_index>
+ 118:	80 93 44 01 	sts	0x0144, r24	; 0x800144 <message_index>
 			if(message_complete == true){
- 11c:	80 91 3a 01 	lds	r24, 0x013A	; 0x80013a <message_complete>
+ 11c:	80 91 42 01 	lds	r24, 0x0142	; 0x800142 <message_complete>
  120:	81 30       	cpi	r24, 0x01	; 1
  122:	31 f4       	brne	.+12     	; 0x130 <__vector_18+0x8a>
 				received_message[message_index] = '\0';
- 124:	e0 91 3c 01 	lds	r30, 0x013C	; 0x80013c <message_index>
+ 124:	e0 91 44 01 	lds	r30, 0x0144	; 0x800144 <message_index>
  128:	f0 e0       	ldi	r31, 0x00	; 0
- 12a:	e3 5c       	subi	r30, 0xC3	; 195
+ 12a:	eb 5b       	subi	r30, 0xBB	; 187
  12c:	fe 4f       	sbci	r31, 0xFE	; 254
  12e:	10 82       	st	Z, r1
 			}
 		}
 
 		if((message_index == (MAX_SIZE-1)) || (net_brackets > 3)){
- 130:	80 91 3c 01 	lds	r24, 0x013C	; 0x80013c <message_index>
- 134:	8d 31       	cpi	r24, 0x1D	; 29
+ 130:	80 91 44 01 	lds	r24, 0x0144	; 0x800144 <message_index>
+ 134:	8e 3f       	cpi	r24, 0xFE	; 254
  136:	21 f0       	breq	.+8      	; 0x140 <__vector_18+0x9a>
- 138:	80 91 3b 01 	lds	r24, 0x013B	; 0x80013b <net_brackets>
+ 138:	80 91 43 01 	lds	r24, 0x0143	; 0x800143 <net_brackets>
  13c:	84 30       	cpi	r24, 0x04	; 4
  13e:	48 f0       	brcs	.+18     	; 0x152 <__vector_18+0xac>
 			receive_error = true;
  140:	81 e0       	ldi	r24, 0x01	; 1
- 142:	80 93 39 01 	sts	0x0139, r24	; 0x800139 <receive_error>
+ 142:	80 93 41 01 	sts	0x0141, r24	; 0x800141 <receive_error>
 			message_start = false;
- 146:	10 92 38 01 	sts	0x0138, r1	; 0x800138 <__data_end>
+ 146:	10 92 40 01 	sts	0x0140, r1	; 0x800140 <message_start>
 			message_complete = false;
- 14a:	10 92 3a 01 	sts	0x013A, r1	; 0x80013a <message_complete>
+ 14a:	10 92 42 01 	sts	0x0142, r1	; 0x800142 <message_complete>
 			message_index = 0;
- 14e:	10 92 3c 01 	sts	0x013C, r1	; 0x80013c <message_index>
+ 14e:	10 92 44 01 	sts	0x0144, r1	; 0x800144 <message_index>
 		}
 	}
 }
@@ -218,7 +218,7 @@ int main(void)
 	uart_initiate(UBRR_VALUE);
  164:	83 e3       	ldi	r24, 0x33	; 51
  166:	90 e0       	ldi	r25, 0x00	; 0
- 168:	0e 94 0d 01 	call	0x21a	; 0x21a <uart_initiate>
+ 168:	0e 94 1d 01 	call	0x23a	; 0x23a <uart_initiate>
 
 	//Enable Global interrupts
 	sei();
@@ -237,9 +237,9 @@ int main(void)
 
     while (1){
 		if(message_complete == true){
- 172:	80 91 3a 01 	lds	r24, 0x013A	; 0x80013a <message_complete>
+ 172:	80 91 42 01 	lds	r24, 0x0142	; 0x800142 <message_complete>
  176:	81 30       	cpi	r24, 0x01	; 1
- 178:	31 f5       	brne	.+76     	; 0x1c6 <main+0x62>
+ 178:	b1 f5       	brne	.+108    	; 0x1e6 <main+0x82>
 			UCSR0B &= ~(1 << RXEN0);
  17a:	88 81       	ld	r24, Y
  17c:	8f 7e       	andi	r24, 0xEF	; 239
@@ -263,169 +263,189 @@ int main(void)
 			uart_transmit("\n\r");
  192:	80 e0       	ldi	r24, 0x00	; 0
  194:	91 e0       	ldi	r25, 0x01	; 1
- 196:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
-			uart_transmit("From Microcontroller: ");
+ 196:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
+			uart_transmit(VERSION);
  19a:	83 e0       	ldi	r24, 0x03	; 3
  19c:	91 e0       	ldi	r25, 0x01	; 1
- 19e:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
-			uart_transmit((char*)received_message);
- 1a2:	8d e3       	ldi	r24, 0x3D	; 61
- 1a4:	91 e0       	ldi	r25, 0x01	; 1
- 1a6:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
+ 19e:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
 			uart_transmit("\n\r");
- 1aa:	80 e0       	ldi	r24, 0x00	; 0
+ 1a2:	80 e0       	ldi	r24, 0x00	; 0
+ 1a4:	91 e0       	ldi	r25, 0x01	; 1
+ 1a6:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
+			uart_transmit("From Microcontroller: ");
+ 1aa:	89 e0       	ldi	r24, 0x09	; 9
  1ac:	91 e0       	ldi	r25, 0x01	; 1
- 1ae:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
+ 1ae:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
+			uart_transmit((char*)received_message);
+ 1b2:	85 e4       	ldi	r24, 0x45	; 69
+ 1b4:	91 e0       	ldi	r25, 0x01	; 1
+ 1b6:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
+			process_message((char*)received_message, (int*)mfc);
+ 1ba:	60 91 3e 01 	lds	r22, 0x013E	; 0x80013e <__data_end>
+ 1be:	70 91 3f 01 	lds	r23, 0x013F	; 0x80013f <__data_end+0x1>
+ 1c2:	85 e4       	ldi	r24, 0x45	; 69
+ 1c4:	91 e0       	ldi	r25, 0x01	; 1
+ 1c6:	0e 94 48 01 	call	0x290	; 0x290 <process_message>
+			uart_transmit("\n\r");
+ 1ca:	80 e0       	ldi	r24, 0x00	; 0
+ 1cc:	91 e0       	ldi	r25, 0x01	; 1
+ 1ce:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
 			message_complete = false;
- 1b2:	10 92 3a 01 	sts	0x013A, r1	; 0x80013a <message_complete>
+ 1d2:	10 92 42 01 	sts	0x0142, r1	; 0x800142 <message_complete>
 			message_start = false;
- 1b6:	10 92 38 01 	sts	0x0138, r1	; 0x800138 <__data_end>
+ 1d6:	10 92 40 01 	sts	0x0140, r1	; 0x800140 <message_start>
 			message_index = 0;
- 1ba:	10 92 3c 01 	sts	0x013C, r1	; 0x80013c <message_index>
+ 1da:	10 92 44 01 	sts	0x0144, r1	; 0x800144 <message_index>
 			UCSR0B |= (1 << RXEN0);
- 1be:	88 81       	ld	r24, Y
- 1c0:	80 61       	ori	r24, 0x10	; 16
- 1c2:	88 83       	st	Y, r24
- 1c4:	d6 cf       	rjmp	.-84     	; 0x172 <main+0xe>
+ 1de:	88 81       	ld	r24, Y
+ 1e0:	80 61       	ori	r24, 0x10	; 16
+ 1e2:	88 83       	st	Y, r24
+ 1e4:	c6 cf       	rjmp	.-116    	; 0x172 <main+0xe>
 		}
 		else if(receive_error == true){
- 1c6:	80 91 39 01 	lds	r24, 0x0139	; 0x800139 <receive_error>
- 1ca:	81 30       	cpi	r24, 0x01	; 1
- 1cc:	91 f6       	brne	.-92     	; 0x172 <main+0xe>
+ 1e6:	80 91 41 01 	lds	r24, 0x0141	; 0x800141 <receive_error>
+ 1ea:	81 30       	cpi	r24, 0x01	; 1
+ 1ec:	11 f6       	brne	.-124    	; 0x172 <main+0xe>
 			UCSR0B &= ~(1 << RXEN0);
- 1ce:	88 81       	ld	r24, Y
- 1d0:	8f 7e       	andi	r24, 0xEF	; 239
- 1d2:	88 83       	st	Y, r24
- 1d4:	2f ef       	ldi	r18, 0xFF	; 255
- 1d6:	80 e7       	ldi	r24, 0x70	; 112
- 1d8:	92 e0       	ldi	r25, 0x02	; 2
- 1da:	21 50       	subi	r18, 0x01	; 1
- 1dc:	80 40       	sbci	r24, 0x00	; 0
- 1de:	90 40       	sbci	r25, 0x00	; 0
- 1e0:	e1 f7       	brne	.-8      	; 0x1da <main+0x76>
- 1e2:	00 c0       	rjmp	.+0      	; 0x1e4 <main+0x80>
- 1e4:	00 00       	nop
+ 1ee:	88 81       	ld	r24, Y
+ 1f0:	8f 7e       	andi	r24, 0xEF	; 239
+ 1f2:	88 83       	st	Y, r24
+ 1f4:	2f ef       	ldi	r18, 0xFF	; 255
+ 1f6:	80 e7       	ldi	r24, 0x70	; 112
+ 1f8:	92 e0       	ldi	r25, 0x02	; 2
+ 1fa:	21 50       	subi	r18, 0x01	; 1
+ 1fc:	80 40       	sbci	r24, 0x00	; 0
+ 1fe:	90 40       	sbci	r25, 0x00	; 0
+ 200:	e1 f7       	brne	.-8      	; 0x1fa <main+0x96>
+ 202:	00 c0       	rjmp	.+0      	; 0x204 <main+0xa0>
+ 204:	00 00       	nop
 			_delay_ms(100);
 			uart_transmit("\n\r");
- 1e6:	80 e0       	ldi	r24, 0x00	; 0
- 1e8:	91 e0       	ldi	r25, 0x01	; 1
- 1ea:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
+ 206:	80 e0       	ldi	r24, 0x00	; 0
+ 208:	91 e0       	ldi	r25, 0x01	; 1
+ 20a:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
 			uart_transmit("From Microcontroller: ");
- 1ee:	83 e0       	ldi	r24, 0x03	; 3
- 1f0:	91 e0       	ldi	r25, 0x01	; 1
- 1f2:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
+ 20e:	89 e0       	ldi	r24, 0x09	; 9
+ 210:	91 e0       	ldi	r25, 0x01	; 1
+ 212:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
 			uart_transmit("Error! The command is invalid");
- 1f6:	8a e1       	ldi	r24, 0x1A	; 26
- 1f8:	91 e0       	ldi	r25, 0x01	; 1
- 1fa:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
+ 216:	80 e2       	ldi	r24, 0x20	; 32
+ 218:	91 e0       	ldi	r25, 0x01	; 1
+ 21a:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
 			uart_transmit("\n\r");
- 1fe:	80 e0       	ldi	r24, 0x00	; 0
- 200:	91 e0       	ldi	r25, 0x01	; 1
- 202:	0e 94 22 01 	call	0x244	; 0x244 <uart_transmit>
+ 21e:	80 e0       	ldi	r24, 0x00	; 0
+ 220:	91 e0       	ldi	r25, 0x01	; 1
+ 222:	0e 94 32 01 	call	0x264	; 0x264 <uart_transmit>
 			receive_error = false;
- 206:	10 92 39 01 	sts	0x0139, r1	; 0x800139 <receive_error>
+ 226:	10 92 41 01 	sts	0x0141, r1	; 0x800141 <receive_error>
 			message_start = false;
- 20a:	10 92 38 01 	sts	0x0138, r1	; 0x800138 <__data_end>
+ 22a:	10 92 40 01 	sts	0x0140, r1	; 0x800140 <message_start>
 			net_brackets = 0;
- 20e:	10 92 3b 01 	sts	0x013B, r1	; 0x80013b <net_brackets>
+ 22e:	10 92 43 01 	sts	0x0143, r1	; 0x800143 <net_brackets>
 			UCSR0B |= (1 << RXEN0);
- 212:	88 81       	ld	r24, Y
- 214:	80 61       	ori	r24, 0x10	; 16
- 216:	88 83       	st	Y, r24
- 218:	ac cf       	rjmp	.-168    	; 0x172 <main+0xe>
+ 232:	88 81       	ld	r24, Y
+ 234:	80 61       	ori	r24, 0x10	; 16
+ 236:	88 83       	st	Y, r24
+ 238:	9c cf       	rjmp	.-200    	; 0x172 <main+0xe>
 
-0000021a <uart_initiate>:
-#include "includes.h"
-#define MAX_SIZE 30
+0000023a <uart_initiate>:
+
+//static char comparison_command[MAX_SIZE] = "{\"x\":{\"mfc\":{\"req\":\"xxx\"},\"clr\":\"xx\"}}"; 
 
 //This function initializes UART receive and transmit 
 void uart_initiate(uint16_t UBRR_VALUE){
 	UCSR0A = 0x00;
- 21a:	10 92 c0 00 	sts	0x00C0, r1	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7e00c0>
+ 23a:	10 92 c0 00 	sts	0x00C0, r1	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7e00c0>
 	
 	//Setting up UBRR value
 	UBRR0L = UBRR_VALUE;
- 21e:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7e00c4>
+ 23e:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7e00c4>
 
 	//Enable transmitter
 	UCSR0B |= (1 << TXEN0);
- 222:	e1 ec       	ldi	r30, 0xC1	; 193
- 224:	f0 e0       	ldi	r31, 0x00	; 0
- 226:	80 81       	ld	r24, Z
- 228:	88 60       	ori	r24, 0x08	; 8
- 22a:	80 83       	st	Z, r24
+ 242:	e1 ec       	ldi	r30, 0xC1	; 193
+ 244:	f0 e0       	ldi	r31, 0x00	; 0
+ 246:	80 81       	ld	r24, Z
+ 248:	88 60       	ori	r24, 0x08	; 8
+ 24a:	80 83       	st	Z, r24
 
 	//Enable receiver
 	UCSR0B |= (1 << RXEN0);
- 22c:	80 81       	ld	r24, Z
- 22e:	80 61       	ori	r24, 0x10	; 16
- 230:	80 83       	st	Z, r24
+ 24c:	80 81       	ld	r24, Z
+ 24e:	80 61       	ori	r24, 0x10	; 16
+ 250:	80 83       	st	Z, r24
 	UCSR0B |= (1 << RXCIE0);
- 232:	80 81       	ld	r24, Z
- 234:	80 68       	ori	r24, 0x80	; 128
- 236:	80 83       	st	Z, r24
+ 252:	80 81       	ld	r24, Z
+ 254:	80 68       	ori	r24, 0x80	; 128
+ 256:	80 83       	st	Z, r24
 
 	//Setting the character size to 8 bits
 	UCSR0C |= (1 << UCSZ00) | (1 << UCSZ01);
- 238:	e2 ec       	ldi	r30, 0xC2	; 194
- 23a:	f0 e0       	ldi	r31, 0x00	; 0
- 23c:	80 81       	ld	r24, Z
- 23e:	86 60       	ori	r24, 0x06	; 6
- 240:	80 83       	st	Z, r24
- 242:	08 95       	ret
+ 258:	e2 ec       	ldi	r30, 0xC2	; 194
+ 25a:	f0 e0       	ldi	r31, 0x00	; 0
+ 25c:	80 81       	ld	r24, Z
+ 25e:	86 60       	ori	r24, 0x06	; 6
+ 260:	80 83       	st	Z, r24
+ 262:	08 95       	ret
 
-00000244 <uart_transmit>:
+00000264 <uart_transmit>:
 }
 
 //This function transmit a message via UART
 void uart_transmit(char* message){
- 244:	cf 93       	push	r28
- 246:	df 93       	push	r29
+ 264:	cf 93       	push	r28
+ 266:	df 93       	push	r29
 	unsigned int i = 0;
 	while(message[i] != '\0'){
- 248:	fc 01       	movw	r30, r24
- 24a:	20 81       	ld	r18, Z
- 24c:	22 23       	and	r18, r18
- 24e:	69 f0       	breq	.+26     	; 0x26a <uart_transmit+0x26>
- 250:	dc 01       	movw	r26, r24
- 252:	11 96       	adiw	r26, 0x01	; 1
+ 268:	fc 01       	movw	r30, r24
+ 26a:	20 81       	ld	r18, Z
+ 26c:	22 23       	and	r18, r18
+ 26e:	69 f0       	breq	.+26     	; 0x28a <uart_transmit+0x26>
+ 270:	dc 01       	movw	r26, r24
+ 272:	11 96       	adiw	r26, 0x01	; 1
 		while(UDR_FULL);
- 254:	e0 ec       	ldi	r30, 0xC0	; 192
- 256:	f0 e0       	ldi	r31, 0x00	; 0
+ 274:	e0 ec       	ldi	r30, 0xC0	; 192
+ 276:	f0 e0       	ldi	r31, 0x00	; 0
 		UDR0 = message[i];
- 258:	c6 ec       	ldi	r28, 0xC6	; 198
- 25a:	d0 e0       	ldi	r29, 0x00	; 0
+ 278:	c6 ec       	ldi	r28, 0xC6	; 198
+ 27a:	d0 e0       	ldi	r29, 0x00	; 0
 
 //This function transmit a message via UART
 void uart_transmit(char* message){
 	unsigned int i = 0;
 	while(message[i] != '\0'){
 		while(UDR_FULL);
- 25c:	90 81       	ld	r25, Z
- 25e:	95 ff       	sbrs	r25, 5
- 260:	fd cf       	rjmp	.-6      	; 0x25c <uart_transmit+0x18>
+ 27c:	90 81       	ld	r25, Z
+ 27e:	95 ff       	sbrs	r25, 5
+ 280:	fd cf       	rjmp	.-6      	; 0x27c <uart_transmit+0x18>
 		UDR0 = message[i];
- 262:	28 83       	st	Y, r18
+ 282:	28 83       	st	Y, r18
 }
 
 //This function transmit a message via UART
 void uart_transmit(char* message){
 	unsigned int i = 0;
 	while(message[i] != '\0'){
- 264:	2d 91       	ld	r18, X+
- 266:	21 11       	cpse	r18, r1
- 268:	f9 cf       	rjmp	.-14     	; 0x25c <uart_transmit+0x18>
+ 284:	2d 91       	ld	r18, X+
+ 286:	21 11       	cpse	r18, r1
+ 288:	f9 cf       	rjmp	.-14     	; 0x27c <uart_transmit+0x18>
 		while(UDR_FULL);
 		UDR0 = message[i];
 		i++;
 	}
 }
- 26a:	df 91       	pop	r29
- 26c:	cf 91       	pop	r28
- 26e:	08 95       	ret
+ 28a:	df 91       	pop	r29
+ 28c:	cf 91       	pop	r28
+ 28e:	08 95       	ret
 
-00000270 <_exit>:
- 270:	f8 94       	cli
+00000290 <process_message>:
 
-00000272 <__stop_program>:
- 272:	ff cf       	rjmp	.-2      	; 0x272 <__stop_program>
+//This function processes a message received by UART
+void process_message(char* message, int* mfc){
+ 290:	08 95       	ret
+
+00000292 <_exit>:
+ 292:	f8 94       	cli
+
+00000294 <__stop_program>:
+ 294:	ff cf       	rjmp	.-2      	; 0x294 <__stop_program>
