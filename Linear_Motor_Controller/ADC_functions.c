@@ -4,7 +4,7 @@
  * Created: 2/10/2018 11:03:44 AM
  *  Author: Helena
  */ 
-
+volatile uint8_t i = 0;
 
 void adc_Init(){
 	ADMUX |=  (1<<REFS0);											// Reference selection to external AVcc
@@ -12,18 +12,26 @@ void adc_Init(){
 	ADCSRA |= (1<<ADEN);											// ADC enable
 	ADMUX &= 0b11110000;
 	
-	TCCR2B |= (1<<CS20); //start adc timer
+	ADCSRA |= (1<<ADIE); //enable ADC interrupts
+	ADCSRA |= (1<<ADATE); //enable ADC Auto trigger
+	ADCSRB |= (1<<ADTS1) | (1<<ADTS0); //set Autotrigger to fire when Timer 0 compare interrupt executes
+	
+	//set up autotrigger source Timer 0
+	OCR0A |= (uint8_t) round(F_CPU/(64.0*SAMPLING_SIZE*OPERATING_FREQUENCY)); //set compare value to ensure ADC converts at  time intervals to evenly distribute sampling across a given period  
+	TIMSK0 |= (1<<OCIE0A);	//enable Timer 0 compare A interrupt
 }
 
 void adc_SetChannel(uint8_t channel){
 	if(channel == 1){
-		ADMUX |= ADC1;												// Mux select for voltage channel 1		
+		ADMUX |= (1<<ADC1);												// Mux select for voltage channel 1		
 		} else {
-		ADMUX &= ~ADC1;												// Mux select for current channel 0
+		ADMUX &= ~(1<<ADC1);												// Mux select for current channel 0
 	}
 }
 
   ISR(TIMER0_COMPA_vect){
+	ADCSRA &= ~(1<<ADATE); //disable adc auto trigger
+	//TIMSK0 &= ~(1<<OCIE0A);
 	TCCR0B &= ~(1<<CS01);
 	TCCR0B &= ~(1<<CS00); //Stop timer 
 	
@@ -33,13 +41,20 @@ void adc_SetChannel(uint8_t channel){
 	  //disable adc conversion complete interrupts
 	  
 	 // uint16_t tempADC = ADC;	//Store the value in a temporary variable
-	 
+	
+			 
 	 if (channel_sel==1){
 	 	  	voltage[i] = adc_Read(1);								//Voltage reads in values from ADC1
 	  		voltageTime[i] = TCNT0;									//Load in values from TCNT0
 	 } else {
 		 	current[i] = double tempADC;							//Current reads in values from ADC0
 		 	currentTime[i] = TCNT0;									//Load in values from TCNT0
+	 }
+	 i++;
+	 
+	 if (i==SAMPLING_SIZE){
+		 ADCSRA |= (1<<ADATE); //enable auto trigger for adc to convert at next interval
+		 calculating = 1;
 	 }
 
 }
