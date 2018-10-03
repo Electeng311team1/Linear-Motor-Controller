@@ -23,10 +23,13 @@ void uart_transmit(char* message);
 void adc_Init();
 void adc_SetChannel(uint8_t channel);
 double adc_Read(uint8_t channel_sel);
-void adc_Calculate();
+
+double calculateAverageSupply();
+double calculateCurrentRMS();
+double calculatePower();
 
 float adc_convert = 5.0/1024.0;
-float v_scaler = ;
+float v_scaler = 2.6;
 float c_scaler = ;
 
 

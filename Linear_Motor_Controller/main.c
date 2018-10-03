@@ -39,8 +39,8 @@ int main(void)
 		if (isCalculating==1){
 			ADCSRA &= ~(1<<ADATE); //disable adc auto trigger	 
 			
-				uint16_t voltage_value = calculateVoltage();
-				uint16_t current_value = calculateCurrent();
+				uint16_t voltage_value = calculateAverageSupply();
+				uint16_t current_value = calculateCurrentRMS();
 				uint16_t power_value = calculatePower();						// Calculate power/voltage/current values, need to be x100 for display
 				isCalculating=0;	//return to converting ADC values
 		}

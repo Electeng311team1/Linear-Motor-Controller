@@ -76,7 +76,7 @@ ISR(TIMER1_COMPB_vect){
  	if (isNegativeCycle){		//set to correct timer upper value for each half cycle
  		TOGGLE_SW2; //turn off SW2
 		switchingPointTimes[3]= TCNT0 + i*ovf_count*OCR0A;
-		 OCR1A = T_ON + T_OFF2; 
+		OCR1A = T_ON + T_OFF2; 
  	} else {
  		TOGGLE_SW1; //TURN OFF SW1
 		 switchingPointTimes[1] = TCNT0 + i*ovf_count*OCR0A;

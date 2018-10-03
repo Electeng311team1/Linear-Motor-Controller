@@ -45,8 +45,7 @@ void adc_Init(){
 		 	currentTime[i] = TCNT0 + i*ovf_count;	
 			if ((i%10) ==9){
 				 ADMUX |= (1<<MUX0);												// preparing to sample voltage next from channel 1	
-			}							
-	 }
+			}							 
 	 i++;
 	 
 	 if (i==SAMPLING_SIZE){
@@ -58,6 +57,7 @@ void adc_Init(){
 		  ADCSRA |= (1<<ADATE); //enable auto trigger for adc to convert at next interval
 	 }
 	 
+	 }
 	}
 
 
@@ -76,10 +76,36 @@ void adc_Calculate(){
 	}
 }
 
-double calculateVoltage(){
-	double finalVoltage=0;
+double calculateAverageSupply(){
+	double finalSupply=0;
 	
 	for (uint8_t j=0; j< 4; i++){
-		finalVoltage += (adc_convert*v_scaler*voltage[j]);
+		finalSupply += (adc_convert*v_scaler*voltage[j]);
 	}
+	
+	finalSupply = finalSupply/4.0;
+	
+	return finalSupply;
+}
+
+double calculateCurrentRMS(){ //Perform a calculation for rms voltage by square rooting sum of the squares
+		double rmsCurrent = 0;
+		for (uint8_t i = 0; i < SAMPLING_SIZE; i++){
+			
+			if ((i%10) ==0)		{
+				
+			} else {
+				rmsCurrent += (current[i] * current[i]);
+			}						
+			
+		}
+
+		rmsCurrent = rmsCurrent/(SAMPLING_SIZE);									
+		rmsCurrent = sqrt(rmsCurrent);															
+		
+		return rmsCurrent;													//Return 10x the value so it work with usart_transmit function
+}
+
+double calculatePower(){
+	
 }
