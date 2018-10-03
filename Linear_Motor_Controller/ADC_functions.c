@@ -107,5 +107,12 @@ double calculateCurrentRMS(){ //Perform a calculation for rms voltage by square 
 }
 
 double calculatePower(){
+	Vsupply_average
+	for (uint8_t i =0; i< SAMPLING_SIZE; i++){
+		if ((currentTime[i]=> switchingPointTimes[0]) && (currentTime[i]=< switchingPointTimes[1])){//still need to multiply by 64/8MHZ
+			Pinst [i] = current[i]* Vsupply_average
+		}
+		
+	}
 	
 }
