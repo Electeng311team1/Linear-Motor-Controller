@@ -11,9 +11,6 @@
 #define BAUD_RATE 9600
 #define UBRR_VALUE F_CPU/16/BAUD_RATE-1
 
-#define MAX_SIZE 30
-#define SAMPLING_SIZE 100
-
 //volatile bool isNegativeCycle;
 
 
@@ -45,7 +42,7 @@ int main(void)
 				uint16_t voltage_value = calculateVoltage();
 				uint16_t current_value = calculateCurrent();
 				uint16_t power_value = calculatePower();						// Calculate power/voltage/current values, need to be x100 for display
-				isCalculating=0;
+				isCalculating=0;	//return to converting ADC values
 		}
 
 		

@@ -53,8 +53,10 @@ void driverTimersInterrupts_Init(){
  		
 		if (isNegativeCycle){		//Set pins for next half cycle
 			TOGGLE_SW1; //sets pins for positive cycle
+			switchingPointTimes[0] = TCNT0 + i*ovf_count*OCR0A;
 			} else {
 			TOGGLE_SW2;//set pins on for positive cycle
+			switchingPointTimes[2]= TCNT0 + i*ovf_count*OCR0A;
 		}
 		isNegativeCycle = !isNegativeCycle; //set flag to indicate next half cycle
   }
@@ -73,9 +75,11 @@ ISR(TIMER2_COMPA_vect){
 ISR(TIMER1_COMPB_vect){
  	if (isNegativeCycle){		//set to correct timer upper value for each half cycle
  		TOGGLE_SW2; //turn off SW2
+		switchingPointTimes[3]= TCNT0 + i*ovf_count*OCR0A;
 		 OCR1A = T_ON + T_OFF2; 
  	} else {
  		TOGGLE_SW1; //TURN OFF SW1
+		 switchingPointTimes[1] = TCNT0 + i*ovf_count*OCR0A;
 		 OCR1A = T_ON + T_OFF1;
  	}
 

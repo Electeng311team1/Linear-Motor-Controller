@@ -24,17 +24,22 @@ void adc_Init();
 void adc_SetChannel(uint8_t channel);
 double adc_Read(uint8_t channel_sel);
 void adc_Calculate();
-void getRawData();
+
+float adc_convert = 5.0/1024.0;
+float v_scaler = ;
+float c_scaler = ;
+
 
 /*ADC Volatile variables*/
 #define SAMPLING_SIZE 150
 uint16_t current[SAMPLING_SIZE];
-uint8_t currentTime[SAMPLING_SIZE];
-uint8_t switchingPointTimes[4];
-uint16_t voltage[15];
-uint8_t voltageTime[15];
+uint16_t currentTime[SAMPLING_SIZE];
+volatile uint16_t switchingPointTimes[4];
+volatile uint16_t voltage[15];
+volatile uint16_t voltageTime[15];
 volatile uint8_t channel_sel;
-volatile uint8_t calculating;
+volatile uint8_t isCalculating;
+volatile uint8_t ovf_count; 
 
 
 

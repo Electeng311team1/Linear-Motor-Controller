@@ -24,13 +24,6 @@ void adc_Init(){
 	TCNT0 = 0;//
 }
 
-void adc_SetChannel(uint8_t channel){
-	if(channel == 1){
-			
-		} else {
-		
-	}
-}
 
   ISR(TIMER0_COMPA_vect){
 	TCNT0=0;
@@ -45,8 +38,8 @@ void adc_SetChannel(uint8_t channel){
 		ADCSRA &= ~(1<<ADATE); //disable adc auto trigger	 
 	 if ((i%10) ==0){
 	 	  	voltage[i/10] = ADC;								//Voltage reads in values from ADC1 (once every 9 current readings)
-	  		voltageTime[i/10] = TCNT0 + i*ovf_count;									//Load in values from TCNT0
-			 ADMUX &= ~(1<<MUX0);												// Mux select for current channel 0 next sample
+	  		voltageTime[i/10] = TCNT0 + i*ovf_count*OCR0A;									//Load in values from TCNT0
+			ADMUX &= ~(1<<MUX0);												// Mux select for current channel 0 next sample
 	 } else {
 		 	current[i] = ADC;							//Current reads in values from ADC0
 		 	currentTime[i] = TCNT0 + i*ovf_count;	
@@ -57,10 +50,12 @@ void adc_SetChannel(uint8_t channel){
 	 i++;
 	 
 	 if (i==SAMPLING_SIZE){
-		 ADCSRA |= (1<<ADATE); //enable auto trigger for adc to convert at next interval
+		 TIMSK0 &= ~(1<<OCIE0A); //disable timer interrupt	 
 		 isCalculating = 1;	//switch to parameter calculation mode
 		 i=0;
 		 ovf_count=0;
+	 } else {
+		  ADCSRA |= (1<<ADATE); //enable auto trigger for adc to convert at next interval
 	 }
 	 
 	}
@@ -71,7 +66,7 @@ void adc_SetChannel(uint8_t channel){
 
 void adc_Calculate(){
 
-	double adc_convert = 5.0/1024.0;
+	double 
 	double v_scaler = 9.64809;//123.0/13.0;//old value:123/13 = 9.46, calibrated: 9.64809;
 	double c_scaler = 54.0/115.0;
 	
@@ -81,43 +76,10 @@ void adc_Calculate(){
 	}
 }
 
-void getRawData(){
-
-	//TCCR0B &= ~(1<<CS00); //turns off counter
-	TCNT2 = 0;
-	uint8_t cycle_count = 0;
-	uint8_t i = 0;
-
-	uint8_t j = TCNT0 + AC_freq_count;
-
-	while(TCNT0 <= AC_freq_count) {								//Repeated three times with a delay between each, creating a staggered set of data
-
-		i++;
+double calculateVoltage(){
+	double finalVoltage=0;
+	
+	for (uint8_t j=0; j< 4; i++){
+		finalVoltage += (adc_convert*v_scaler*voltage[j]);
 	}
-
-	uint8_t k = TCNT0 + DELAY_BETWEEN_CYCLES;
-	while(TCNT0 <= k);
-
-	while(TCNT0 <= (AC_freq_count*2+DELAY_BETWEEN_CYCLES)) {
-		current[i] = adc_Read(0);
-		currentTime[i] = TCNT0;
-		voltage[i] = adc_Read(1);
-		voltageTime[i] = TCNT0;
-
-		i++;
-	}
-
-	k = TCNT0 + DELAY_BETWEEN_CYCLES;
-	while(TCNT0 <= k);
-
-	while(TCNT0 <= (AC_freq_count*3+DELAY_BETWEEN_CYCLES*2)) {
-		current[i] = adc_Read(0);
-		currentTime[i] = TCNT0;
-		voltage[i] = adc_Read(1);
-		voltageTime[i] = TCNT0;
-
-		i++;
-	}
-
-	READ_SAMPLE_LENGTH = i;			//Total number of samples obtained
 }
