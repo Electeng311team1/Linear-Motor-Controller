@@ -53,6 +53,9 @@ ISR(USART_RX_vect){
 	}
 }
 
+//volatile bool isNegativeCycle;
+
+
 int main(void)
 {
 	//UART functionalities 
@@ -61,21 +64,14 @@ int main(void)
 	//Enable Global interrupts
 	sei();
 
-// 	DDRB |= (1 << DDB0);
-// 	DDRD |= (1 << DDD5) | (1 << DDD6) | (1 << DDD7);
-// 
-// 	PORTB &= ~(1 << PB0);
-// 	PORTD &= ~(1 << PD5);
-// 	PORTD |= (1 << PD7);
-// 	PORTD |= (1 << PD6);
-
 	//enable timers
-	driver_timer_initiate();
+	
 
 	*mfc = 120;
 	*duty_cycle = 0.5;
 	*frequency = 12.5;
 	set_parameters(frequency, duty_cycle, mfc);
+	driver_timer_initiate();
     while (1){
 		
 // 		if(message_complete == true){
