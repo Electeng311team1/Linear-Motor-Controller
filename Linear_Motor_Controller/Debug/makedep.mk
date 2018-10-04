@@ -4,6 +4,8 @@
 
 ADC.c
 
+HDriverFunctions.c
+
 main.c
 
 UART.c

@@ -38,6 +38,7 @@ SUBDIRS :=
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../ADC.c \
+../HDriverFunctions.c \
 ../main.c \
 ../UART.c
 
@@ -50,21 +51,25 @@ ASM_SRCS +=
 
 OBJS +=  \
 ADC.o \
+HDriverFunctions.o \
 main.o \
 UART.o
 
 OBJS_AS_ARGS +=  \
 ADC.o \
+HDriverFunctions.o \
 main.o \
 UART.o
 
 C_DEPS +=  \
 ADC.d \
+HDriverFunctions.d \
 main.d \
 UART.d
 
 C_DEPS_AS_ARGS +=  \
 ADC.d \
+HDriverFunctions.d \
 main.d \
 UART.d
 
@@ -82,6 +87,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

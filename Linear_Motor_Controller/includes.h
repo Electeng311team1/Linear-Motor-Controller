@@ -31,5 +31,13 @@ void process_message(char* message, int* mfc);
 
 /*ADC Functions*/
 
+/*HDdriver Functions*/
+void driverTimers_Init();
+void driverTimersInterrupts_Init();
+void setFrequency(float frequency, float dutyCycle);
 
-/*Test Functions*/ 
+/*Hdriver volatile variables*/
+volatile bool isNegativeCycle;
+volatile uint16_t T_OFF1;
+volatile uint16_t T_OFF2;
+volatile uint16_t T_ON;
