@@ -31,3 +31,4 @@ volatile bool isNegativeCycle;
 volatile uint16_t T_OFF1;
 volatile uint16_t T_OFF2;
 volatile uint16_t T_ON;
+volatile uint8_t stopDriver;

@@ -29,7 +29,7 @@ void uart_initiate(uint16_t UBRR_VALUE){
 
 void uart_transmit(char* message){
 	unsigned int i = 0;
-	while(message[i] != NULL){
+	while(message[i] != '\0'){
 		while(UDR_FULL);
 		UDR0 = message[i];
 		i++;
