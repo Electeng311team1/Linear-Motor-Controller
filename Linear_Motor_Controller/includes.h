@@ -29,6 +29,14 @@ void uart_transmit(char* message);
 /*Message Processing Functions*/
 void process_message(char* message, int* mfc);
 
+
+/*Motor Driver Function*/
+void driver_timer_initiate(void);
+void set_parameters(float* frequency, float* duty_cycle, uint8_t* mfc);
+
+/*Motor Driver Global Variables*/
+volatile bool isNegative;
+
 /*ADC Functions*/
 
 

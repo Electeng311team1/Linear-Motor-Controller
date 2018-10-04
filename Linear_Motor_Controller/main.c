@@ -18,6 +18,9 @@ volatile uint8_t message_complete = false;
 volatile uint8_t receive_error = false;
 volatile uint8_t message_start = false;
 
+float* frequency;
+float* duty_cycle;
+uint8_t* mfc;
 //ISR for UART receive
 ISR(USART_RX_vect){
 	char tmp = UDR0; 
@@ -58,31 +61,47 @@ int main(void)
 	//Enable Global interrupts
 	sei();
 
+// 	DDRB |= (1 << DDB0);
+// 	DDRD |= (1 << DDD5) | (1 << DDD6) | (1 << DDD7);
+// 
+// 	PORTB &= ~(1 << PB0);
+// 	PORTD &= ~(1 << PD5);
+// 	PORTD |= (1 << PD7);
+// 	PORTD |= (1 << PD6);
+
+	//enable timers
+	driver_timer_initiate();
+
+	*mfc = 120;
+	*duty_cycle = 0.5;
+	*frequency = 12.5;
+	set_parameters(frequency, duty_cycle, mfc);
     while (1){
-		if(message_complete == true){
-			UCSR0B &= ~(1 << RXEN0);
-			_delay_ms(100);
-			uart_transmit("\n\r");
-			uart_transmit("From Microcontroller: ");
-			uart_transmit((char*)received_message);
-			uart_transmit("\n\r");
-			message_complete = false;
-			message_start = false;
-			message_index = 0;
-			UCSR0B |= (1 << RXEN0);
-		}
-		else if(receive_error == true){
-			UCSR0B &= ~(1 << RXEN0);
-			_delay_ms(100);
-			uart_transmit("\n\r");
-			uart_transmit("From Microcontroller: ");
-			uart_transmit("Error! The command is invalid");
-			uart_transmit("\n\r");
-			receive_error = false;
-			message_start = false;
-			net_brackets = 0;
-			UCSR0B |= (1 << RXEN0);
-		} 
+		
+// 		if(message_complete == true){
+// 			UCSR0B &= ~(1 << RXEN0);
+// 			_delay_ms(100);
+// 			uart_transmit("\n\r");
+// 			uart_transmit("From Microcontroller: ");
+// 			uart_transmit((char*)received_message);
+// 			uart_transmit("\n\r");
+// 			message_complete = false;
+// 			message_start = false;
+// 			message_index = 0;
+// 			UCSR0B |= (1 << RXEN0);
+// 		}
+// 		else if(receive_error == true){
+// 			UCSR0B &= ~(1 << RXEN0);
+// 			_delay_ms(100);
+// 			uart_transmit("\n\r");
+// 			uart_transmit("From Microcontroller: ");
+// 			uart_transmit("Error! The command is invalid");
+// 			uart_transmit("\n\r");
+// 			receive_error = false;
+// 			message_start = false;
+// 			net_brackets = 0;
+// 			UCSR0B |= (1 << RXEN0);
+// 		} 
 	}
 }
 

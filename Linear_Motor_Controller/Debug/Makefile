@@ -39,6 +39,7 @@ SUBDIRS :=
 C_SRCS +=  \
 ../ADC.c \
 ../main.c \
+../MOTORDRIVER.c \
 ../UART.c
 
 
@@ -51,21 +52,25 @@ ASM_SRCS +=
 OBJS +=  \
 ADC.o \
 main.o \
+MOTORDRIVER.o \
 UART.o
 
 OBJS_AS_ARGS +=  \
 ADC.o \
 main.o \
+MOTORDRIVER.o \
 UART.o
 
 C_DEPS +=  \
 ADC.d \
 main.d \
+MOTORDRIVER.d \
 UART.d
 
 C_DEPS_AS_ARGS +=  \
 ADC.d \
 main.d \
+MOTORDRIVER.d \
 UART.d
 
 OUTPUT_FILE_PATH +=Linear_Motor_Controller.elf
@@ -82,6 +87,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 
