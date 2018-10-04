@@ -19,8 +19,6 @@ volatile uint8_t message_complete = false;
 volatile uint8_t receive_error = false;
 volatile uint8_t message_start = false;
 
-unsigned int mfc = 0;
-
 //ISR for UART receive
 ISR(USART_RX_vect){
 	char tmp = UDR0; 
@@ -61,6 +59,14 @@ int main(void)
 	//Enable Global interrupts
 	sei();
 
+	float frequency = 12.5;
+	int mfc = 0;
+	//float dutyCycle = ((float)mfc)/256.0; //must be greater than 0, less that 1
+	float dutyCycle = 0.0;
+	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
+	driverTimers_Init();
+	driverTimersInterrupts_Init();
+
     while (1){
 		if(message_complete == true){
 			UCSR0B &= ~(1 << RXEN0);
@@ -71,6 +77,8 @@ int main(void)
 			uart_transmit("From Microcontroller: ");
 			uart_transmit((char*)received_message);
 			process_message((char*)received_message, (int*)mfc);
+			//dutyCycle = ((float)mfc)/256.0;
+			setFrequency(frequency, dutyCycle);
 			uart_transmit("\n\r");
 			message_complete = false;
 			message_start = false;
@@ -90,23 +98,6 @@ int main(void)
 			UCSR0B |= (1 << RXEN0);
 		} 
 	}
-
-
-	/*
-	uart_initiate(UBRR_VALUE);
-	char message[MAX_SIZE] = "Hello we are Team 1!\n\r";
-	*/
-	
-	float frequency = 9;
-	float dutyCycle= 0.3; //must be greater than 0, less that 1
-	
-	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
-	driverTimers_Init();
-	driverTimersInterrupts_Init();
-	
-    while (1){
-		//uart_transmit(message);
-    }
 }
 
 
