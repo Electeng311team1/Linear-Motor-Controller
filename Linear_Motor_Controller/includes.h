@@ -24,7 +24,7 @@ void uart_transmit(char* message);
 /*HDdriver Functions*/
 void driverTimers_Init();
 void driverTimersInterrupts_Init();
-void setFrequency(float frequency, float dutyCycle);
+void setFrequency(float frequency, float duty_Cycle);
 
 /*HDdriver volatile variables*/
 volatile bool isNegativeCycle;

@@ -2,6 +2,8 @@
 
 #define DEAD_TIME_COUNT_HIGH 208 //First deadtime of 3uS
 #define DEAD_TIME_COUNT_LOW  24//Second deadtime of 26uS
+#define LOW_OFF_TIME 3
+#define	HIGH_OFF_TIME 26
 #define MAGNITUDE_DELAY 0.0 //Additional proportional delay for second dead time to account for motor asymmetry
 
 #define TOGGLE_SW1 PORTB ^= (1<<PB0)
@@ -38,26 +40,29 @@ void driverTimers_Init(){
 	
 }
 
-void setFrequency(float frequency, float dutyCycle){
+void setFrequency(float frequency, float duty_Cycle){
 
 		//driverDisable = 0;
 		/*PORTB |= (1<<PB0);*/
 		//PORTD |= (1<<PD6);
 		
 		
-		float OFFTime = 1000.0/ (frequency*(2+ MAGNITUDE_DELAY + (2*dutyCycle)/(1-dutyCycle))); //Find T_ON, T_OFF1, T_OFF2 from given frequency
- 		T_OFF1 = (uint16_t) (round(1000*OFFTime) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8)); 
- 		T_OFF2 = (uint16_t) (round(OFFTime*1000.0 * (1.0+MAGNITUDE_DELAY)) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8));
-	
-		T_ON = dutyCycle * T_OFF1/ (1-dutyCycle); //calculating on time from calculated off time
+// 		float OFFTime = 1000.0/ (frequency*(2+ MAGNITUDE_DELAY + (2*dutyCycle)/(1-dutyCycle))); //Find T_ON, T_OFF1, T_OFF2 from given frequency
+//  		T_OFF1 = (uint16_t) (round(1000*OFFTime) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8)); 
+//  		T_OFF2 = (uint16_t) (round(OFFTime*1000.0 * (1.0+MAGNITUDE_DELAY)) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8));
+// 	
+// 		T_ON = dutyCycle * T_OFF1/ (1-dutyCycle); //calculating on time from calculated off time
 	 
-	 
-	 
-	 
-		OCR1B = T_ON; //on time constant until setFrequency called
-		OCR1A = T_ON + T_OFF1; 
+// 		OCR1B = T_ON; //on time constant until setFrequency called
+// 		OCR1A = T_ON + T_OFF1; 
+	//float dutyCycle = *mfc/255;
+
+	float off_time = ((1000/(2*frequency)) - (LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_Cycle);
+	float on_time = ((1000/(2*frequency)) - (LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_Cycle);
+	OCR1A = (uint16_t) ((on_time + off_time + HIGH_OFF_TIME/1000)*1000);
+	OCR1B = (uint16_t) (on_time*1000);
 		
-		if (dutyCycle ==0){
+		if (duty_Cycle == 0){
 			stopDriver=1;
 		} else {
 			stopDriver=0;
@@ -123,10 +128,10 @@ ISR(TIMER1_COMPB_vect){
 	
 		  if (isNegativeCycle){		//set to correct timer upper value for each half cycle
  		CLEAR_SW2; //turn off SW2
-		 OCR1A = T_ON + T_OFF2; 
+		 //OCR1A = T_ON + T_OFF2; 
  	} else {
  		CLEAR_SW1; //TURN OFF SW1
-		 OCR1A = T_ON + T_OFF1;
+		 //OCR1A = T_ON + T_OFF1;
  	}
 
 	TCNT2=0; 													//clear counter to start dead time timer
