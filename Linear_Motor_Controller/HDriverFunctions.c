@@ -20,7 +20,7 @@
 #define CLEAR_SW4 PORTD &= ~(1<<PD6)
 
 void driverTimers_Init(){
- 	TCCR2B |= (1<<CS00); //Set up 8bit timer to use 8MHZ clock
+ 	TCCR2B |= (1<<CS20); //Set up 8bit timer to use 8MHZ clock
  	OCR2A = DEAD_TIME_COUNT_HIGH; //DEAD_TIME_COUNT_HIGH;	
  	OCR2B = DEAD_TIME_COUNT_LOW; //DEAD_TIME_COUNT_LOW;			//Initializing dead times which remain constant		
 
@@ -43,11 +43,15 @@ void setFrequency(float frequency, float dutyCycle){
 		//driverDisable = 0;
 		/*PORTB |= (1<<PB0);*/
 		//PORTD |= (1<<PD6);
+		
+		
 		float OFFTime = 1000.0/ (frequency*(2+ MAGNITUDE_DELAY + (2*dutyCycle)/(1-dutyCycle))); //Find T_ON, T_OFF1, T_OFF2 from given frequency
  		T_OFF1 = (uint16_t) (round(1000*OFFTime) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8)); 
  		T_OFF2 = (uint16_t) (round(OFFTime*1000.0 * (1.0+MAGNITUDE_DELAY)) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8));
 	
 		T_ON = dutyCycle * T_OFF1/ (1-dutyCycle); //calculating on time from calculated off time
+	 
+	 
 	 
 	 
 		OCR1B = T_ON; //on time constant until setFrequency called

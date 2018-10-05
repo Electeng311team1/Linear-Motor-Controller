@@ -25,7 +25,7 @@ int main(void)
 	sei();	
 	stopDriver = 0;
 		float frequency = 13.0;
-		float dutyCycle= 0.00; //must be greater than 0, less that 1
+		float dutyCycle= 0.50; //must be greater than 0, less that 1
 	
 		setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
 		driverTimers_Init();
