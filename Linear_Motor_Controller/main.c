@@ -24,6 +24,11 @@ int main(void)
 	uart_initiate(UBRR_VALUE);
 	char message[MAX_SIZE] = "Hello we are Team 1!\n\r";
 	*/
+
+	
+	while (1){
+		
+	}
 	sei();	
 	stopDriver = 0;
 
