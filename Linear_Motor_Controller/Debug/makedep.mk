@@ -4,6 +4,8 @@
 
 ADC.c
 
+ADC_functions.c
+
 HDriverFunctions.c
 
 main.c
