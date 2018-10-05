@@ -28,6 +28,10 @@ int main(void)
 	driverTimers_Init();
 	driverTimersInterrupts_Init();
 	
+	float voltage_value;
+	float current_value;
+	float power_value;
+	
 	void adc_Init();
 	
 	
@@ -39,9 +43,9 @@ int main(void)
 		if (isCalculating==1){
 			ADCSRA &= ~(1<<ADATE); //disable adc auto trigger	 
 			
-				float voltage_value = calculateAverageSupply();
-				float current_value = calculateCurrentRMS();
-				float power_value = calculatePower();						// Calculate power/voltage/current values, need to be x100 for display
+				voltage_value = calculateAverageSupply();
+				current_value = calculateCurrentRMS();
+				power_value = calculatePower(voltage_value);						// Calculate power/voltage/current values, need to be x100 for display
 				isCalculating=0;	//return to converting ADC values
 		}
 

@@ -102,11 +102,11 @@ float calculateCurrentRMS(){ //Perform a calculation for rms voltage by square r
 		return rmsCurrent;													//Return 10x the value so it work with usart_transmit function
 }
 
-float calculatePower(){
+float calculatePower(Vsupply_average){
 	float timeInterval;
 	float P_area =0;
 	
-	double Vsupply_average = calculateAverageSupply();
+	//double Vsupply_average = calculateAverageSupply();
 	double Vsupply_average_squared = Vsupply_average*Vsupply_average;//*adc_convert;
 	for (uint8_t i =0; i< SAMPLING_SIZE; i++){
 		if (((currentTime[i]>= switchingPointTimes[0]) && (currentTime[i]<= switchingPointTimes[1])) || ((currentTime[i]>= switchingPointTimes[2]) && (currentTime[i]<= switchingPointTimes[3]))){//still need to multiply by 64/8MHZ
