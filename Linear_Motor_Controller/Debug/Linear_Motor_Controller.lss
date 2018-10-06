@@ -726,12 +726,21 @@ void uart_transmit(char* message){
  48c:	df 93       	push	r29
 	unsigned int i = 0;
 	while(message[i] != '\0'){
+<<<<<<< HEAD
  48e:	fc 01       	movw	r30, r24
  490:	20 81       	ld	r18, Z
  492:	22 23       	and	r18, r18
  494:	69 f0       	breq	.+26     	; 0x4b0 <uart_transmit+0x26>
  496:	dc 01       	movw	r26, r24
  498:	11 96       	adiw	r26, 0x01	; 1
+=======
+ 100:	fc 01       	movw	r30, r24
+ 102:	20 81       	ld	r18, Z
+ 104:	22 23       	and	r18, r18
+ 106:	99 f0       	breq	.+38     	; 0x12e <uart_transmit+0x32>
+ 108:	dc 01       	movw	r26, r24
+ 10a:	11 96       	adiw	r26, 0x01	; 1
+>>>>>>> 6d44ffb6bdd18aceec3cba08b3768637fef84108
 		while(UDR_FULL);
  49a:	e0 ec       	ldi	r30, 0xC0	; 192
  49c:	f0 e0       	ldi	r31, 0x00	; 0
@@ -755,10 +764,16 @@ void uart_transmit(char* message){
 void uart_transmit(char* message){
 	unsigned int i = 0;
 	while(message[i] != '\0'){
+<<<<<<< HEAD
  4aa:	2d 91       	ld	r18, X+
  4ac:	21 11       	cpse	r18, r1
  4ae:	f9 cf       	rjmp	.-14     	; 0x4a2 <uart_transmit+0x18>
 		while(UDR_FULL);
+=======
+ 128:	2d 91       	ld	r18, X+
+ 12a:	21 11       	cpse	r18, r1
+ 12c:	f3 cf       	rjmp	.-26     	; 0x114 <uart_transmit+0x18>
+>>>>>>> 6d44ffb6bdd18aceec3cba08b3768637fef84108
 		UDR0 = message[i];
 		i++;
 	}
