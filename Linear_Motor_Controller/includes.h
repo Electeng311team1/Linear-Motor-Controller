@@ -37,6 +37,7 @@ void soft_start(float* req_freq, int* req_mfc);
 
 /*Motor Driver Global Variables*/
 volatile bool isNegative;
+volatile bool change_duty;
 
 /*ADC Functions*/
 

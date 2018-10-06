@@ -21,6 +21,9 @@
  #define CHIGH 522
  #define x 150
 
+ volatile uint16_t t1_compare_a;
+ volatile uint16_t t1_compare_b;
+
  //Dead times in us 
  #define LOW_OFF_TIME 2 
  #define HIGH_OFF_TIME 8
@@ -52,38 +55,40 @@
 	DDRD |= (1 << DDD5) | (1 << DDD6) | (1 << DDD7);
 
 	//Set initial switches
-	CLR_SW1;
-	CLR_SW4;
+	SET_SW1;
+	SET_SW4;
 	CLR_SW2;
 	CLR_SW3;
 
-	isNegative = false;
+	change_duty = false;
  }
 
  void set_parameters(float frequency, uint8_t mfc){
- 	if(mfc == 0){
-		SET_SW3;
-		SET_SW4;
-		CLR_SW1;
-		CLR_SW2;
-		TIMSK1 &= ~(1 << OCIE1A);
-		TIMSK1 &= ~(1 << OCIE1B);
-		TIMSK0 &= ~(1 << OCIE0A);
-		TIMSK0 &= ~(1 << OCIE0B);
-		TCNT1 = 0;
-	}
-	else{
-		float duty_cycle = (float)mfc/255;
-		float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
-		float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
+//  	if(mfc == 0){
+// 		SET_SW3;
+// 		SET_SW4;
+// 		CLR_SW1;
+// 		CLR_SW2;
+// 		TIMSK1 &= ~(1 << OCIE1A);
+// 		TIMSK1 &= ~(1 << OCIE1B);
+// 		TIMSK0 &= ~(1 << OCIE0A);
+// 		TIMSK0 &= ~(1 << OCIE0B);
+// 		TCNT1 = 0;
+// 	}
+	float duty_cycle = (float)mfc/255;
+	float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
+	float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
 
-		//Set T1 Compare
-		OCR1A = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
-		OCR1B = (uint16_t)(on_time*1000);
+	//Set T1 Compare
+	t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
+	t1_compare_b = (uint16_t)(on_time*1000);
 
-		//Initialise timer interrupt
-		TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
-	}
+	
+	isNegative = false;
+	change_duty = true;
+
+	//Initialise timer interrupt
+	TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
 }
 
 void soft_start(float* req_freq, int* req_mfc){
@@ -98,7 +103,6 @@ ISR(TIMER0_COMPA_vect){
 	else{
 		SET_SW4;
 	}
-
 }
 
 ISR(TIMER1_COMPA_vect){
@@ -108,8 +112,9 @@ ISR(TIMER1_COMPA_vect){
 	else{
 		CLR_SW3;
 	}
+	TIMSK0 |= (1 << OCIE0B);
 	TCNT0 = 0;
-	TIMSK0 |= (1 << OCIE1B);
+
 }
 
 ISR(TIMER0_COMPB_vect){
@@ -122,18 +127,29 @@ ISR(TIMER0_COMPB_vect){
 		SET_SW1;
 		isNegative = false;
 	}
+	if(change_duty == true){
+		TIMSK0 &= ~(1 << OCIE0A);
+		TIMSK1 &= ~(1 << OCIE1A);
+		TIMSK1 &= (1 << OCIE1B);
+		OCR0A = t1_compare_a;
+		OCR1B = t1_compare_b;
+		change_duty = false;
+	}
+	TIMSK1 |= (1 << OCIE1B);
+	TIMSK1 |= (1 << OCIE1A);
 	TCNT1 = 0;
 }
 
 ISR(TIMER1_COMPB_vect){
+	TIMSK1 &= ~(1 << OCIE1B);
 	if(isNegative == false){
 		CLR_SW1;
 	}
 	else{
 		CLR_SW2;
 	}
-	TCNT0 = 0;
 	TIMSK0 |= (1 << OCIE0A);
+	TCNT0 = 0;
 }
 
 void project_skywalker(){
