@@ -11,8 +11,6 @@
 #define MAX_SIZE 255
 #define VERSION "1.1.2"
 
-//IFDEFS
-
 volatile char received_message[MAX_SIZE];
 volatile uint8_t message_index = 0;
 volatile uint8_t net_brackets = 0;
@@ -20,8 +18,10 @@ volatile uint8_t message_complete = false;
 volatile uint8_t receive_error = false;
 volatile uint8_t message_start = false;
 
+//#define SITH
+
 volatile float* frequency;
-volatile int* mfc;
+volatile uint8_t* mfc;
 
 //ISR for UART receive
 ISR(USART_RX_vect){
@@ -63,21 +63,27 @@ int main(void)
 	//Enable Global interrupts
 	sei();
 
-	//Enable SONG mode
-	*frequency = 12;
-	*mfc = 100;
+	*frequency = 12.5;
+	*mfc = 150;
 
 	//enable timers
 	driver_timer_initiate();
-	set_parameters((float*)frequency, (int*)mfc);
-	
+	set_parameters(*frequency, *mfc);
+
+	//soft_start((float*)frequency, (int*)mfc);
+
     while (1){
+
+		#ifdef SITH
+			project_skywalker();
+		#endif
+
 		if(message_complete == true){
 			UCSR0B &= ~(1 << RXEN0);
 			uart_transmit("\n\rFrom Microcontroller: ");
 			uart_transmit((char*)received_message);
 			process_message((char*)received_message, (int*)mfc);
-			set_parameters((float*)frequency, (int*)mfc);
+			set_parameters(*frequency, *mfc);
 			uart_transmit("\n\r");
 			message_complete = false;
 			message_start = false;

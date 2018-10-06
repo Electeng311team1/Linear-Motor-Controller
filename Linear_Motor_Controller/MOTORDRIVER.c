@@ -7,9 +7,23 @@
 
  #include "includes.h"
 
+ #define AFLATLOW 208
+ #define B 246
+ #define CLOW 260
+ #define D 292
+ #define EFLAT 312
+ #define E 328
+ #define F 348
+ #define G 393
+ #define AFLAT 416
+ #define A 440
+ #define BFLAT 466
+ #define CHIGH 522
+ #define x 150
+
  //Dead times in us 
- #define LOW_OFF_TIME 3 
- #define HIGH_OFF_TIME 26
+ #define LOW_OFF_TIME 2 
+ #define HIGH_OFF_TIME 8
 
  #define LOW_OFF_TIME_COUNT_VALUE (LOW_OFF_TIME*8)
  #define HIGH_OFF_TIME_COUNT_VALUE (HIGH_OFF_TIME*8)
@@ -38,25 +52,42 @@
 	DDRD |= (1 << DDD5) | (1 << DDD6) | (1 << DDD7);
 
 	//Set initial switches
-	SET_SW1;
-	SET_SW4;
+	CLR_SW1;
+	CLR_SW4;
 	CLR_SW2;
 	CLR_SW3;
 
 	isNegative = false;
  }
 
- void set_parameters(float* frequency, int* mfc){
-	float duty_cycle = (float)*mfc/255;
-	float off_time = ((1000/(2*(*frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
-	float on_time = ((1000/(2*(*frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
+ void set_parameters(float frequency, uint8_t mfc){
+ 	if(mfc == 0){
+		SET_SW3;
+		SET_SW4;
+		CLR_SW1;
+		CLR_SW2;
+		TIMSK1 &= ~(1 << OCIE1A);
+		TIMSK1 &= ~(1 << OCIE1B);
+		TIMSK0 &= ~(1 << OCIE0A);
+		TIMSK0 &= ~(1 << OCIE0B);
+		TCNT1 = 0;
+	}
+	else{
+		float duty_cycle = (float)mfc/255;
+		float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
+		float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
 
-	//Set T1 Compare
-	OCR1A = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
-	OCR1B = (uint16_t)(on_time*1000);
+		//Set T1 Compare
+		OCR1A = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
+		OCR1B = (uint16_t)(on_time*1000);
 
-	//Initialise timer interrupt
-	TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
+		//Initialise timer interrupt
+		TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
+	}
+}
+
+void soft_start(float* req_freq, int* req_mfc){
+
 }
 
 ISR(TIMER0_COMPA_vect){	
@@ -103,4 +134,80 @@ ISR(TIMER1_COMPB_vect){
 	}
 	TCNT0 = 0;
 	TIMSK0 |= (1 << OCIE0A);
+}
+
+void project_skywalker(){
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(AFLATLOW, x);
+	_delay_ms(420);
+	set_parameters(AFLATLOW, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(AFLATLOW, x);
+	_delay_ms(420);
+	set_parameters(AFLATLOW, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(1120);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+
+	set_parameters(G, x);
+	_delay_ms(560);
+	set_parameters(G, 1);
+	_delay_ms(100);
+	set_parameters(G, x);
+	_delay_ms(560);
+	set_parameters(G, 1);
+	_delay_ms(100);
+	set_parameters(G, x);
+	_delay_ms(560);
+	set_parameters(G, 1);
+	_delay_ms(100);
+	set_parameters(AFLAT, x);
+	_delay_ms(420);
+	set_parameters(AFLAT, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(B, x);
+	_delay_ms(560);
+	set_parameters(B, 1);
+	_delay_ms(100);
+	set_parameters(AFLATLOW, x);
+	_delay_ms(420);
+	set_parameters(AFLATLOW, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(1120);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
 }

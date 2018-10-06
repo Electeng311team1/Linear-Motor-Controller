@@ -32,12 +32,15 @@ void process_message(char* message, int* mfc);
 
 /*Motor Driver Function*/
 void driver_timer_initiate(void);
-void set_parameters(float* frequency, int* mfc);
+void set_parameters(float frequency,  uint8_t mfc);
+void soft_start(float* req_freq, int* req_mfc);
 
 /*Motor Driver Global Variables*/
 volatile bool isNegative;
 
 /*ADC Functions*/
 
+/*Test Functions*/
+void project_skywalker();
 
-/*Test Functions*/ 
+

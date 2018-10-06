@@ -41,11 +41,22 @@ void uart_transmit(char* message){
 //This function processes a message received by UART
 void process_message(char* message, int* mfc){
 	int value = 0;
+	//char tmp[3];
 	for(unsigned int i = 1; i < 4; i++){
 		value = value*10 + (message[i] - 48);
-	}	
-	if(value == 100){
-		uart_transmit("conversion is correct");
+		//tmp[i-1] = message[i];
 	}
+// 		tmp[0] = message[1];
+// 		tmp[1] = message[2];
+// 		tmp[2] = message[3]; 
+//	unsigned int i = 0;
+// 	while(tmp[i] != '\0'){
+// 		value = value*10 + (tmp[i] - 48);
+// 		i++;
+// 	}
+
+// 	for(unsigned int i = 0; i < 3; i++){
+// 		value = value*10 + (tmp[i] - 48);
+// 	}
 	*mfc = value;
 }
