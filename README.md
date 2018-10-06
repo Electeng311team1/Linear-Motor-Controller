@@ -11,3 +11,4 @@ Current Features
         -characters following a completed message are causing corruption of message
         -terminal is receiving what we are transmitting as well as what the microcontroller is sending
         
+-6/10/2018 added the ability to control the motor under given conditions
