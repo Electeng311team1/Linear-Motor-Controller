@@ -7,9 +7,12 @@
 
  #include "includes.h"
 
- //Dead times
- #define LOW_OFF_TIME 24 //Put formula here please, dead time of 03us
- #define HIGH_OFF_TIME 208 //Put formula here please, dead time of 26us
+ //Dead times in us 
+ #define LOW_OFF_TIME 3 
+ #define HIGH_OFF_TIME 26
+
+ #define LOW_OFF_TIME_COUNT_VALUE (LOW_OFF_TIME*8)
+ #define HIGH_OFF_TIME_COUNT_VALUE (HIGH_OFF_TIME*8)
 
  //Switch defines
  #define SET_SW1 PORTB |= (1 << PB0)
@@ -24,8 +27,8 @@
  void driver_timer_initiate(void){
 	//Timer 1 8bit (no prescalar)
 	TCCR0B |= (1 << CS00);
-	OCR0A = HIGH_OFF_TIME;
-	OCR0B = LOW_OFF_TIME;
+	OCR0A = HIGH_OFF_TIME_COUNT_VALUE;
+	OCR0B = LOW_OFF_TIME_COUNT_VALUE;
 	
 	//Timer 2 16bit (8 prescalar)
 	TCCR1B |= (1 << CS11);
@@ -43,15 +46,14 @@
 	isNegative = false;
  }
 
- void set_parameters(float* frequency, float* duty_cycle, uint8_t* mfc){
-	*duty_cycle = *mfc/255;
-
-	uint16_t off_time = (uint16_t)(((1000/(2*(float)*frequency))-LOW_OFF_TIME-HIGH_OFF_TIME)*(1-(float)*duty_cycle));
-	uint16_t on_time = (uint16_t)(((1000/(2*(float)*frequency))-LOW_OFF_TIME-HIGH_OFF_TIME)*((float)*duty_cycle));
+ void set_parameters(float* frequency, int* mfc){
+	float duty_cycle = (float)*mfc/255;
+	float off_time = ((1000/(2*(*frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
+	float on_time = ((1000/(2*(*frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
 
 	//Set T1 Compare
-	OCR1A = (uint16_t)(((on_time + off_time)*1000) + (uint16_t)(HIGH_OFF_TIME/8));
-	OCR1B = (uint16_t)on_time*1000;
+	OCR1A = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
+	OCR1B = (uint16_t)(on_time*1000);
 
 	//Initialise timer interrupt
 	TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);

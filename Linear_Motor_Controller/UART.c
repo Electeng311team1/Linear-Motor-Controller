@@ -40,6 +40,12 @@ void uart_transmit(char* message){
 
 //This function processes a message received by UART
 void process_message(char* message, int* mfc){
-
-	
+	int value = 0;
+	for(unsigned int i = 1; i < 4; i++){
+		value = value*10 + (message[i] - 48);
+	}	
+	if(value == 100){
+		uart_transmit("conversion is correct");
+	}
+	*mfc = value;
 }
