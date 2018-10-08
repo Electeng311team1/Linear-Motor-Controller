@@ -19,10 +19,7 @@
  #define A 440
  #define BFLAT 466
  #define CHIGH 522
- #define x 150
-
- volatile uint16_t t1_compare_a;
- volatile uint16_t t1_compare_b;
+ #define x 200
 
  //Dead times in us 
  #define LOW_OFF_TIME 2 
@@ -61,34 +58,44 @@
 	CLR_SW3;
 
 	change_duty = false;
+	first_cycle = true;
  }
 
  void set_parameters(float frequency, uint8_t mfc){
-//  	if(mfc == 0){
-// 		SET_SW3;
-// 		SET_SW4;
-// 		CLR_SW1;
-// 		CLR_SW2;
-// 		TIMSK1 &= ~(1 << OCIE1A);
-// 		TIMSK1 &= ~(1 << OCIE1B);
-// 		TIMSK0 &= ~(1 << OCIE0A);
-// 		TIMSK0 &= ~(1 << OCIE0B);
-// 		TCNT1 = 0;
-// 	}
-	float duty_cycle = (float)mfc/255;
-	float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
-	float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
+ 	if(mfc == 0){
+		SET_SW3;
+		SET_SW4;
+		CLR_SW1;
+		CLR_SW2;
+		TIMSK1 &= ~(1 << OCIE1A);
+		TIMSK1 &= ~(1 << OCIE1B);
+		TIMSK0 &= ~(1 << OCIE0A);
+		TIMSK0 &= ~(1 << OCIE0B);
+		change_duty = true;
+	}
+	else{
+		float duty_cycle = (float)mfc/255;
+		float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
+		float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
 
-	//Set T1 Compare
-	t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
-	t1_compare_b = (uint16_t)(on_time*1000);
+		//Set T1 Compare
+		t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
+		t1_compare_b = (uint16_t)(on_time*1000);
 
 	
-	isNegative = false;
-	change_duty = true;
+		isNegative = false;
+		change_duty = true;
 
-	//Initialise timer interrupt
-	TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
+		if(first_cycle){
+			OCR1A = (uint16_t)t1_compare_a;
+			OCR1B = (uint16_t)t1_compare_b;
+			first_cycle = false;
+	}
+
+		//Initialise timer interrupt
+		TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
+		TCNT1 = 0;
+	}
 }
 
 void soft_start(float* req_freq, int* req_mfc){
@@ -112,6 +119,8 @@ ISR(TIMER1_COMPA_vect){
 	else{
 		CLR_SW3;
 	}
+	TIMSK1 &= ~(1 << OCIE1A);
+	TIMSK1 &= ~(1 << OCIE1B);
 	TIMSK0 |= (1 << OCIE0B);
 	TCNT0 = 0;
 
@@ -128,9 +137,6 @@ ISR(TIMER0_COMPB_vect){
 		isNegative = false;
 	}
 	if(change_duty == true){
-		TIMSK0 &= ~(1 << OCIE0A);
-		TIMSK1 &= ~(1 << OCIE1A);
-		TIMSK1 &= (1 << OCIE1B);
 		OCR0A = t1_compare_a;
 		OCR1B = t1_compare_b;
 		change_duty = false;

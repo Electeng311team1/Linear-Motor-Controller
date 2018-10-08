@@ -38,10 +38,13 @@ void soft_start(float* req_freq, int* req_mfc);
 /*Motor Driver Global Variables*/
 volatile bool isNegative;
 volatile bool change_duty;
+volatile bool first_cycle;
+volatile uint16_t t1_compare_a;
+volatile uint16_t t1_compare_b;
 
 /*ADC Functions*/
 
-/*Test Functions*/
+/*Other Functions*/
 void project_skywalker();
 
 
