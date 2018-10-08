@@ -20,20 +20,22 @@ int main(void)
 	uart_initiate(UBRR_VALUE);
 	char message[MAX_SIZE] = "Hello we are Team 1!\n\r";
 	*/
+	adc_Init();
 	
-	float frequency = 9;
-	float dutyCycle= 0.5; //must be greater than 0, less that 1
-	
-	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
 	driverTimers_Init();
-	driverTimersInterrupts_Init();
+	//driverTimersInterrupts_Init();
 	
 	float voltage_value;
 	float current_value;
 	float power_value;
+	float resonantFrequency;
 	
-	void adc_Init();
+	uint8_t calculateResonant=0;
 	
+	float frequency = 9;
+	float dutyCycle= 0.5; //must be greater than 0, less that 1
+	setFrequency(frequency, dutyCycle);//acquire on/off times or alternatively could manually set on and off times
+	adc_Begin();
 	
     while (1){
 		
@@ -48,6 +50,25 @@ int main(void)
 				power_value = calculatePower(voltage_value);						// Calculate power/voltage/current values, need to be x100 for display
 				isCalculating=0;	//return to converting ADC values
 		}
+		//calculateResonant=1 if want to find resonant frequency
+		if (calculateResonant==1){
+			setFrequency(0, dutyCycle);
+			resonantsamplingcomplete = 0;
+			resonantFrequency = calculateResonantFrequency();
+			frequency = resonantFrequency;
+			setFrequency(frequency, dutyCycle);
+			
+		}
+		
+		//if dutyCycle is low 
+		if (dutyCycle<= LOWDUTYTHRESHOLD){
+			setHalfDrive = 1;
+			float halfDriveDutyCycle = dutyCycle * 1.5; //arbitrary scale
+			setFrequency(frequency, halfDriveDutyCycle);
+		} else {
+			setHalfDrive=0;
+		}
+			
 
 		
 		//uart_transmit(message);

@@ -11,15 +11,7 @@
 #define TOGGLE_SW3 PORTD ^= (1<<PD7)
 #define TOGGLE_SW4 PORTD ^= (1<<PD6)
 
-#define SET_SW1 PORTB |= (1<<PB0)
-#define SET_SW2 PORTD |= (1<<PD5)
-#define SET_SW3 PORTD |= (1<<PD7)
-#define SET_SW4 PORTD |= (1<<PD6)
-
-#define CLEAR_SW1 PORTB &= ~(1<<PB0)
-#define CLEAR_SW2 PORTD &= ~(1<<PD5)
-#define CLEAR_SW3 PORTD &= ~(1<<PD7)
-#define CLEAR_SW4 PORTD &= ~(1<<PD6)
+ 
 
 void driverTimers_Init(){
  	TCCR2B |= (1<<CS20); //Set up 8bit timer to use 8MHZ clock
@@ -78,9 +70,9 @@ void setFrequency(float frequency, float duty_Cycle){
 	
 }
 
-void driverTimersInterrupts_Init(){
-
-}
+// void driverTimersInterrupts_Init(){
+// 
+// }
 
   ISR(TIMER2_COMPB_vect){
 
@@ -89,8 +81,17 @@ void driverTimersInterrupts_Init(){
  		if (stopDriver==0){
 			 if (isNegativeCycle){		//Set pins for next half cycle
 				SET_SW1; //sets pins for positive cycle
+				
+				if (isCalculating==0){
+					switchingPointTimes[0]=TCNT1;
+				}
+				
 			} else {
-				SET_SW2;//set pins on for positive cycle
+				if (setHalfDrive == 0){
+					SET_SW2;//set pins on for positive cycle only if not driving 
+				}
+				
+				switchingPointTimes[2]=TCNT1;
 			}
 		 
 		 }
@@ -125,9 +126,11 @@ ISR(TIMER1_COMPB_vect){
 	
 		  if (isNegativeCycle){		//set to correct timer upper value for each half cycle
  		CLEAR_SW2; //turn off SW2
+		 switchingPointTimes[3]=TCNT1;
 		 //OCR1A = T_ON + T_OFF2; 
  	} else {
  		CLEAR_SW1; //TURN OFF SW1
+		 switchingPointTimes[1]=TCNT1;
 		 //OCR1A = T_ON + T_OFF1;
  	}
 
@@ -142,6 +145,13 @@ ISR(TIMER1_COMPA_vect){
 	 
 		  if (isNegativeCycle){
  			CLEAR_SW3; //turns off SW3
+			 if (isCalculating==0){ //updates comparing switching values only when calculations have finished
+				 switchTime1 = switchingPointTimes[0]; //saving switching times over one period for calculations
+				 switchTime2 = switchingPointTimes[1];
+				 switchTime3 = switchingPointTimes[2];
+				 switchTime4 = switchingPointTimes[3];
+			 }
+
  		} else {
  			CLEAR_SW4; //turns off SW4
  		}
