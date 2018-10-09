@@ -33,14 +33,14 @@ void adc_initiate(){
 
 	//Enable conversion
 
-	ADMUX |= (1 << MUX0);
+	//ADMUX |= (1 << MUX0);
 
 	ADCSRA |= (1 << ADSC);
 }
 
 void adc_start(float* operating_frequency){
 	
-	 	OCR0A = (uint8_t) 69;//(F_CPU/(64.0 * (float)SAMPLING_SIZE * (*operating_frequency)));
+	 	OCR0A = (uint8_t) 5;//(F_CPU/(64.0 * (float)SAMPLING_SIZE * (*operating_frequency)));
 	 	TIMSK0 |= (1 << OCIE0A);
 	 	TCNT0 = 0;
 	compA_count = 0;
@@ -58,26 +58,26 @@ ISR(ADC_vect){
 // 		testvalue = true;
 // 	}
 		if (beginCalculation==0){
-	 		ADCSRA &= ~(1<<ADATE);
+	 		//ADCSRA &= ~(1<<ADATE);
 	 		if ((i%10) == 0){
 				 j=i/10;
 	 			voltage[j] = ADC;
 				 
-				 uint16_t tmp = voltage[j]; //gets correct adc readings sometimes but garbage other times
-				 uint8_t thousands = (tmp/1000) + 48;
-				 uint8_t hundreds = ((tmp%1000)/100) + 48;
-				 uint8_t tens = (((tmp%1000)%100)/10) + 48;
-				 uint8_t ones = ((((tmp%1000)%100)%10)) + 48;
-				 char array[5];
-				 array[0] = thousands;
-				 array[1] = hundreds;
-				 array[2] = tens;
-				 array[3] = ones;
-				 array[4] = '\0';
-				 uart_transmit(array);
-				 uart_transmit("\n\r");
+// 				 uint16_t tmp = voltage[j]; //gets correct adc readings sometimes but garbage other times
+// 				 uint8_t thousands = (tmp/1000) + 48;
+// 				 uint8_t hundreds = ((tmp%1000)/100) + 48;
+// 				 uint8_t tens = (((tmp%1000)%100)/10) + 48;
+// 				 uint8_t ones = ((((tmp%1000)%100)%10)) + 48;
+// 				 char array[5];
+// 				 array[0] = thousands;
+// 				 array[1] = hundreds;
+// 				 array[2] = tens;
+// 				 array[3] = ones;
+// 				 array[4] = '\0';
+// 				 uart_transmit(array);
+// 				 uart_transmit("\n\r");
 				 
-	 			voltageTime[j/10] = TCNT0 + compA_count*OCR0A;
+	 			voltageTime[j] = TCNT0 + compA_count*OCR0A;
 	 			ADMUX &= ~(1<<MUX0);
 	 		} else {
 	 			current[i] = ADC;
@@ -104,13 +104,14 @@ ISR(ADC_vect){
 	 		}
 	 		i++;
 	 		if (i == (SAMPLING_SIZE-1)){
-	 			TIMSK0 &= ~(1<<OCIE0A); //disables further adc reading
+	 			TIMSK0 &= ~(1<<OCIE0A); //disables further adc reading by disabling compare interrupt
 	 			beginCalculation = 1; //stops adc sampling and saves values to perform calculations
 	 			i=0;
 	 			compA_count = 0;
-			} else {
-	 			ADCSRA |= (1<<ADATE);
-	 		}
+			} 
+// 			else {
+// 	 			ADCSRA |= (1<<ADATE);
+// 	 		}
 
 	}
 }

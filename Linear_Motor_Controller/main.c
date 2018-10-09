@@ -64,7 +64,7 @@ int main(void)
 	sei();
 
 	*frequency = 12.5;
-	*mfc = 150;
+	*mfc = 80;
 
 	//enable timers
 	driver_timer_initiate();
@@ -109,25 +109,25 @@ int main(void)
 		// 		uart_transmit(array);
 		// 		uart_transmit("\n\r");
 		//		_delay_ms(500);
-// 							if (beginCalculation==1){
-// 								for (uint8_t i = 0; i<SAMPLING_SIZE ;i++){
-// 									if ((i%10) != 0){
-// 										uint16_t tmp = current[i];
-// 										uint8_t thousands = (tmp/1000) + 48;
-// 										uint8_t hundreds = ((tmp%1000)/100) + 48;
-// 										uint8_t tens = (((tmp%1000)%100)/10) + 48;
-// 										uint8_t ones = ((((tmp%1000)%100)%10)) + 48;
-// 										char array[5];
-// 										array[0] = thousands;
-// 										array[1] = hundreds;
-// 										array[2] = tens;
-// 										array[3] = ones;
-// 										array[4] = '\0';
-// 										uart_transmit(array);
-// 										uart_transmit("\n\r");
-// 									}
-// 								}
-// 							}
+							if (beginCalculation==1){
+								for (uint8_t i = 0; i<SAMPLING_SIZE ;i++){
+									if ((i%10) != 0){
+										uint16_t tmp = current[i];
+										uint8_t thousands = (uint8_t) ((tmp/1000) + 48);
+										uint8_t hundreds = (uint8_t) (((tmp%1000)/100) + 48);
+										uint8_t tens = (uint8_t) ((((tmp%1000)%100)/10) + 48);
+										uint8_t ones = (uint8_t) (((((tmp%1000)%100)%10)) + 48);
+										char array[5];
+										array[0] = thousands;
+										array[1] = hundreds;
+										array[2] = tens;
+										array[3] = ones;
+										array[4] = '\0';
+										uart_transmit(array);
+										uart_transmit("\n\r");
+									}
+								}
+							}
 							
 							
 							
