@@ -1,152 +1,244 @@
 #include "includes.h"
 
-#define DEAD_TIME_COUNT_HIGH 208 //First deadtime of 3uS
-#define DEAD_TIME_COUNT_LOW  24//Second deadtime of 26uS
-#define LOW_OFF_TIME 3
-#define	HIGH_OFF_TIME 26
-#define MAGNITUDE_DELAY 0.0 //Additional proportional delay for second dead time to account for motor asymmetry
+#define AFLATLOW 208
+#define B 246
+#define CLOW 260
+#define D 292
+#define EFLAT 312
+#define E 328
+#define F 348
+#define G 393
+#define AFLAT 416
+#define A 440
+#define BFLAT 466
+#define CHIGH 522
+#define x 150
 
-#define TOGGLE_SW1 PORTB ^= (1<<PB0)
-#define TOGGLE_SW2 PORTD ^= (1<<PD5)
-#define TOGGLE_SW3 PORTD ^= (1<<PD7)
-#define TOGGLE_SW4 PORTD ^= (1<<PD6)
+volatile int mfr;
+//Dead times in us
+#define LOW_OFF_TIME 2
+#define HIGH_OFF_TIME 8
 
-#define SET_SW1 PORTB |= (1<<PB0)
-#define SET_SW2 PORTD |= (1<<PD5)
-#define SET_SW3 PORTD |= (1<<PD7)
-#define SET_SW4 PORTD |= (1<<PD6)
+#define LOW_OFF_TIME_COUNT_VALUE (LOW_OFF_TIME*8)
+#define HIGH_OFF_TIME_COUNT_VALUE (HIGH_OFF_TIME*8)
 
-#define CLEAR_SW1 PORTB &= ~(1<<PB0)
-#define CLEAR_SW2 PORTD &= ~(1<<PD5)
-#define CLEAR_SW3 PORTD &= ~(1<<PD7)
-#define CLEAR_SW4 PORTD &= ~(1<<PD6)
+//Switch defines
+#define SET_SW1 PORTB |= (1 << PB0)
+#define CLR_SW1 PORTB &= ~(1 << PB0)
+#define SET_SW2 PORTD |= (1 << PD5)
+#define CLR_SW2 PORTD &= ~(1 << PD5)
+#define SET_SW3 PORTD |= (1 << PD7)
+#define CLR_SW3 PORTD &= ~(1 << PD7)
+#define SET_SW4 PORTD |= (1 << PD6)
+#define CLR_SW4 PORTD &= ~(1 << PD6)
 
-void driverTimers_Init(){
- 	TCCR2B |= (1<<CS20); //Set up 8bit timer to use 8MHZ clock
- 	OCR2A = DEAD_TIME_COUNT_HIGH; //DEAD_TIME_COUNT_HIGH;	
- 	OCR2B = DEAD_TIME_COUNT_LOW; //DEAD_TIME_COUNT_LOW;			//Initializing dead times which remain constant		
+void driver_timer_initiate(void){
+	//Timer 1 8bit (no prescalar)
+	TCCR2B |= (1 << CS20);
+	OCR2A = HIGH_OFF_TIME_COUNT_VALUE;
+	OCR2B = LOW_OFF_TIME_COUNT_VALUE;
+	
+	//Timer 2 16bit (8 prescalar)
+	TCCR1B |= (1 << CS11);
 
-	TCCR1B |= (1<<CS11);//Set up 16 bit timer with pre-scaler 8
-	DDRB |= (1 << DDB0); //Configuring driver pins to output
+	//Set pins to output
+	DDRB |= (1 << DDB0);
 	DDRD |= (1 << DDD5) | (1 << DDD6) | (1 << DDD7);
-	
-	//SET PINS AND VARIABLES TO START STATE to start with positive cycle 
-	CLEAR_SW1 ;
-	CLEAR_SW2 ;
-	CLEAR_SW3 ;
-	CLEAR_SW4 ;
-	
-	isNegativeCycle = false; 
-	
+
+	//Set initial switches
+	SET_SW1;
+	SET_SW4;
+	CLR_SW2;
+	CLR_SW3;
+
+	change_duty = false;
+	first_cycle = true;
 }
 
-void setFrequency(float frequency, float duty_Cycle){
+void set_parameters(float frequency, uint8_t mfc){
+	mfr = (int)mfc;
+	float duty_cycle = (float)mfc/255;
+	float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
+	float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
 
-		//driverDisable = 0;
-		/*PORTB |= (1<<PB0);*/
-		//PORTD |= (1<<PD6);
-		
-		
-// 		float OFFTime = 1000.0/ (frequency*(2+ MAGNITUDE_DELAY + (2*dutyCycle)/(1-dutyCycle))); //Find T_ON, T_OFF1, T_OFF2 from given frequency
-//  		T_OFF1 = (uint16_t) (round(1000*OFFTime) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8)); 
-//  		T_OFF2 = (uint16_t) (round(OFFTime*1000.0 * (1.0+MAGNITUDE_DELAY)) + ((DEAD_TIME_COUNT_HIGH + DEAD_TIME_COUNT_LOW) *8));
-// 	
-// 		T_ON = dutyCycle * T_OFF1/ (1-dutyCycle); //calculating on time from calculated off time
-	 
-// 		OCR1B = T_ON; //on time constant until setFrequency called
-// 		OCR1A = T_ON + T_OFF1; 
-	//float dutyCycle = *mfc/255;
-	OPERATING_FREQUENCY = frequency;
+	//Set T1 Compare
+	t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
+	t1_compare_b = (uint16_t)(on_time*1000);
 
-	float off_time = ((1000/(2*frequency)) - (LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_Cycle);
-	float on_time = ((1000/(2*frequency)) - (LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_Cycle);
-	OCR1A = (uint16_t) ((on_time + off_time + HIGH_OFF_TIME/1000)*1000);
-	OCR1B = (uint16_t) (on_time*1000);
-		
-		if (duty_Cycle == 0){
-			stopDriver=1;
-		} else {
-			stopDriver=0;
-			TIMSK1 |= (1<<OCIE1A) | (1<<OCIE1B);	// Enable on/off time timer compare match interrupts
-		}
-// 		
-// 		if (stopDriver==0){
-// 			
-// 		} 
-		
+	isNegative = false;
+	change_duty = true;
 
-	
+	if(first_cycle){
+		OCR1A = (uint16_t)t1_compare_a;
+		OCR1B = (uint16_t)t1_compare_b;
+		first_cycle = false;
+	}
+
+	#ifdef SITH
+	OCR1A = (uint16_t)t1_compare_a;
+	OCR1B = (uint16_t)t1_compare_b;
+	#endif
+
+	//Initialise timer interrupt
+	TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
+	TCNT1 = 0;
 }
 
-void driverTimersInterrupts_Init(){
-
+void soft_start(float req_freq, int req_mfc){
+	unsigned int i = 0;
+	while(i != req_mfc){
+		set_parameters(req_freq, i);
+		i++;
+	}
 }
 
-  ISR(TIMER2_COMPB_vect){
-
-		TIMSK2 &= ~(1<<OCIE2B);
-		TCNT1 = 0; //clear timer 1 count  to start next half cycle
- 		if (stopDriver==0){
-			 if (isNegativeCycle){		//Set pins for next half cycle
-				SET_SW1; //sets pins for positive cycle
-			} else {
-				SET_SW2;//set pins on for positive cycle
-			}
-		 
-		 }
-		
-		isNegativeCycle = !isNegativeCycle; //set flag to indicate next half cycle
-	  
-	
-  }
-
- 																		
 ISR(TIMER2_COMPA_vect){
+	TIMSK2 &= ~(1 << OCIE2A);
+	if(isNegative == false){
+		SET_SW3;
+	}
+	else{
+		SET_SW4;
+	}
+}
 
-		 TIMSK2 &= ~(1<<OCIE2A);	// Disable high dead time timer interrupts
-		 
-		 if (stopDriver==0){
-		 	if (isNegativeCycle){
-				SET_SW4; //turn on SW4
-			} else {
-				SET_SW3; //turn on SW3
-			}
-		 
-		 }
+ISR(TIMER1_COMPA_vect){
+	if(isNegative == false){
+		CLR_SW4;
+	}
+	else{
+		CLR_SW3;
+	}
+	TIMSK1 &= ~(1 << OCIE1A);
+	TIMSK1 &= ~(1 << OCIE1B);
+	TIMSK2 |= (1 << OCIE2B);
+	TCNT2 = 0;
+}
 
-	 
+ISR(TIMER2_COMPB_vect){
+	TIMSK2 &= ~(1 << OCIE2B);
+	if(mfr == 0){
+		TIMSK2 &= ~(1 << OCIE2A);
+		TIMSK2 &= ~(1 << OCIE2B);
+		TIMSK1 &= ~(1 << OCIE1A);
+		TIMSK1 &= ~(1 << OCIE1B);
+		CLR_SW3;
+		CLR_SW4;
+		CLR_SW1;
+		CLR_SW2;
+		SET_SW3;
+		SET_SW4;
+		first_cycle = true;
+		
+	}
+	else{
+		if(isNegative == false){
+			SET_SW2;
+			isNegative = true;
+		}
+		else{
+			SET_SW1;
+			isNegative = false;
+		}
+
+		if(change_duty == true){
+			OCR1A = t1_compare_a;
+			OCR1B = t1_compare_b;
+			change_duty = false;
+		}
+		
+		TIMSK1 |= (1 << OCIE1B);
+		TIMSK1 |= (1 << OCIE1A);
+		TCNT1 = 0;
+	}
+
 	
 }
-									
-
-
 
 ISR(TIMER1_COMPB_vect){
-	
-		  if (isNegativeCycle){		//set to correct timer upper value for each half cycle
- 		CLEAR_SW2; //turn off SW2
-		 //OCR1A = T_ON + T_OFF2; 
- 	} else {
- 		CLEAR_SW1; //TURN OFF SW1
-		 //OCR1A = T_ON + T_OFF1;
- 	}
+	TIMSK1 &= ~(1 << OCIE1B);
+	if(isNegative == false){
+		CLR_SW1;
+	}
+	else{
+		CLR_SW2;
+	}
+	TIMSK2 |= (1 << OCIE2A);
+	TCNT2 = 0;
+}
 
-	TCNT2=0; 													//clear counter to start dead time timer
-	TIMSK2 |= (1<<OCIE2A);			
-	  
- 								// Enable dead time timer compare match A interrupts
-}	
+void project_skywalker(){
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(AFLATLOW, x);
+	_delay_ms(420);
+	set_parameters(AFLATLOW, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(560);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
+	set_parameters(AFLATLOW, x);
+	_delay_ms(420);
+	set_parameters(AFLATLOW, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(1120);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
 
-	
-ISR(TIMER1_COMPA_vect){
-	 
-		  if (isNegativeCycle){
- 			CLEAR_SW3; //turns off SW3
- 		} else {
- 			CLEAR_SW4; //turns off SW4
- 		}
- 			TCNT2 = 0 ; //reset timer 0
- 			TIMSK2 = (1<<OCIE2B); //enable low deadtime timer interrupts		
-
-
+	set_parameters(G, x);
+	_delay_ms(560);
+	set_parameters(G, 1);
+	_delay_ms(100);
+	set_parameters(G, x);
+	_delay_ms(560);
+	set_parameters(G, 1);
+	_delay_ms(100);
+	set_parameters(G, x);
+	_delay_ms(560);
+	set_parameters(G, 1);
+	_delay_ms(100);
+	set_parameters(AFLAT, x);
+	_delay_ms(420);
+	set_parameters(AFLAT, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(B, x);
+	_delay_ms(560);
+	set_parameters(B, 1);
+	_delay_ms(100);
+	set_parameters(AFLATLOW, x);
+	_delay_ms(420);
+	set_parameters(AFLATLOW, 1);
+	_delay_ms(100);
+	set_parameters(E, x);
+	_delay_ms(140);
+	set_parameters(E, 1);
+	_delay_ms(100);
+	set_parameters(CLOW, x);
+	_delay_ms(1120);
+	set_parameters(CLOW, 1);
+	_delay_ms(100);
 }
