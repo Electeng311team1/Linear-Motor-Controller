@@ -11,13 +11,8 @@
  	//Set ADC prescalar
 	ADCSRA |= (1 << ADPS2) | (1 << ADPS1);
  
- 	//Select AVcc reference
-	//ADMUX |= (1 << REFS0);
-
 	//Enable ADC
 	ADCSRA |= (1 << ADEN);
-	
-	//ADMUX |= (1 << ADLAR);
 	
 	//Enable ADC interrupt
 	ADCSRA |= (1 << ADIE);
@@ -32,8 +27,7 @@
 	//TCCR0B |= (1 << CS00) | (1 << CS01);
 
 	//Enable conversion 
-
-	ADMUX |= (1 << MUX0);
+	//ADMUX |= (1 << MUX0);
 
 	ADCSRA |= (1 << ADSC);
  }
@@ -44,6 +38,7 @@
 // 	TIMSK0 |= (1 << OCIE0A);
 // 	TCNT0 = 0;
 	compA_count = 0;
+	current_index = 0;
  }
 
 //  ISR(TIMER0_COMPA_vect){
@@ -53,10 +48,20 @@
 //  }
 
  ISR(ADC_vect){
-	if(!testvalue){
-		testadcvalue = ADC;
-		testvalue = true;
-	}
+	current_values[0] = ADC;
+	uint16_t tmp = current_values[0];
+	uint8_t thousands = (tmp/1000) + 48;
+	uint8_t hundreds = ((tmp%1000)/100) + 48;
+	uint8_t tens = (((tmp%1000)%100)/10) + 48;
+	uint8_t ones = ((((tmp%1000)%100)%10)) + 48;
+	char array[5];
+	array[0] = thousands;
+	array[1] = hundreds;
+	array[2] = tens;
+	array[3] = ones;
+	array[4] = '\0';
+	uart_transmit(array);
+	uart_transmit("\n\r");
 // 	if (beginCalculation==0){
 // 		ADCSRA &= ~(1<<ADATE);
 // 		if ((i%10) == 0){

@@ -99,6 +99,20 @@ void soft_start(float req_freq, int req_mfc){
 	}
 }
 
+void stop_motor(){
+	CLR_SW1;
+	_delay_ms(10);
+	CLR_SW2;
+	_delay_ms(10);
+	SET_SW3;
+	_delay_ms(10);
+	SET_SW4;
+	TIMSK1 &= ~(1 << OCIE1B);
+	TIMSK1 &= ~(1 << OCIE1A);
+	TIMSK2 &= ~(1 << OCIE2A);
+	TIMSK2 &= ~(1 << OCIE2B);
+}
+
 ISR(TIMER2_COMPA_vect){	
 	TIMSK2 &= ~(1 << OCIE2A);
 	if(isNegative == false){
@@ -158,8 +172,7 @@ ISR(TIMER2_COMPB_vect){
 		TIMSK1 |= (1 << OCIE1A);
 		TCNT1 = 0;
 	}
-
-	
+		
 }
 
 ISR(TIMER1_COMPB_vect){

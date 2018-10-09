@@ -34,6 +34,7 @@ void process_message(char* message, int* mfc);
 void driver_timer_initiate(void);
 void set_parameters(float frequency,  uint8_t mfc);
 void soft_start(float req_freq, int req_mfc);
+void stop_motor();
 
 /*Motor Driver Global Variables*/
 volatile bool isNegative;
@@ -52,6 +53,8 @@ void adc_start(float* operating_frequency);
 
 /*ADC variables*/
 volatile uint8_t compA_count;
+volatile uint8_t current_values[SAMPLING_SIZE];
+volatile uint8_t current_index;
 
 /*Other Functions*/
 //#define SITH
@@ -59,6 +62,7 @@ void project_skywalker();
 
 /*Other Variables*/
 volatile uint16_t testadcvalue;
-volatile bool testvalue;
+volatile bool print; 
+volatile bool a; 
 
 

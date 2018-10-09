@@ -63,33 +63,45 @@ int main(void)
 	sei();
 
 	*frequency = 12.5;
-	*mfc = 150;
+	*mfc = 000;
 
 	//enable timers
 	driver_timer_initiate();
-	//set_parameters(*frequency, *mfc);
-	soft_start(*frequency, *mfc);
+	if(*mfc == 0){
+		stop_motor();
+	}
+	else{
+		set_parameters(*frequency, *mfc);
+		//soft_start(*frequency, *mfc);
+	}
 
 	adc_initiate();
 	adc_start((float*)frequency);
 
+	a = true;
+
     while (1){
-		if(testvalue){
-			uint16_t tmp = testadcvalue;
-			uint8_t thousands = (tmp/1000) + 48;
-			uint8_t hundreds = ((tmp%1000)/100) + 48;
-			uint8_t tens = (((tmp%1000)%100)/10) + 48;
-			uint8_t ones = ((((tmp%1000)%100)%10)) + 48;
-			char array[5];
-			array[0] = thousands;
-			array[1] = hundreds;
-			array[2] = tens;
-			array[3] = ones;
-			array[4] = '\0';
-			uart_transmit(array);
-			uart_transmit("\n\r");
-			testvalue = false;
-			_delay_ms(200);
+		if(print && a){
+			for(unsigned int i = 0; i < SAMPLING_SIZE; i++){
+// 				uint16_t tmp = current_values[i];
+// 				uint8_t thousands = (tmp/1000) + 48;
+// 				uint8_t hundreds = ((tmp%1000)/100) + 48;
+// 				uint8_t tens = (((tmp%1000)%100)/10) + 48;
+// 				uint8_t ones = ((((tmp%1000)%100)%10)) + 48;
+// 				char array[5];
+// 				array[0] = thousands;
+// 				array[1] = hundreds;
+// 				array[2] = tens;
+// 				array[3] = ones;
+// 				array[4] = '\0';
+// 				uart_transmit(array);
+// 				uart_transmit("\n\r");
+				//print = false;
+				a = false;
+				//_delay_ms(100);
+
+				//int scalar = 1000;
+			}
 		}
 
 // 		int tmp = TCNT0;
