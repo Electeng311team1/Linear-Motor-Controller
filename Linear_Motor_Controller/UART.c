@@ -58,5 +58,9 @@ void process_message(char* message, int* mfc){
 // 	for(unsigned int i = 0; i < 3; i++){
 // 		value = value*10 + (tmp[i] - 48);
 // 	}
+
+	if(message[1] == 'p'){
+		uart_transmit("\n\rits here!\n\r");
+	}
 	*mfc = value;
 }

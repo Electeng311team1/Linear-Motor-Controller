@@ -5,21 +5,22 @@
  *  Author: Team 1
  */ 
 
- #include "includes.h"
+#include "includes.h"
 
- #define AFLATLOW 208
- #define B 246
- #define CLOW 260
- #define D 292
- #define EFLAT 312
- #define E 328
- #define F 348
- #define G 393
- #define AFLAT 416
- #define A 440
- #define BFLAT 466
- #define CHIGH 522
- #define x 200
+#define AFLATLOW 208
+#define B 246
+#define CLOW 260
+#define D 292
+#define EFLAT 312
+#define E 328
+#define F 348
+#define G 393
+#define AFLAT 416
+#define A 440
+#define BFLAT 466
+#define CHIGH 522
+#define x 150
+
 
  //Dead times in us 
  #define LOW_OFF_TIME 2 
@@ -62,40 +63,31 @@
  }
 
  void set_parameters(float frequency, uint8_t mfc){
- 	if(mfc == 0){
-		SET_SW3;
-		SET_SW4;
-		CLR_SW1;
-		CLR_SW2;
-		TIMSK1 &= ~(1 << OCIE1A);
-		TIMSK1 &= ~(1 << OCIE1B);
-		TIMSK0 &= ~(1 << OCIE0A);
-		TIMSK0 &= ~(1 << OCIE0B);
-		change_duty = true;
-	}
-	else{
-		float duty_cycle = (float)mfc/255;
-		float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
-		float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
+	float duty_cycle = (float)mfc/255;
+	float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
+	float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
 
-		//Set T1 Compare
-		t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
-		t1_compare_b = (uint16_t)(on_time*1000);
+	//Set T1 Compare
+	t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
+	t1_compare_b = (uint16_t)(on_time*1000);
 
-	
-		isNegative = false;
-		change_duty = true;
+	isNegative = false;
+	change_duty = true;
 
-		if(first_cycle){
-			OCR1A = (uint16_t)t1_compare_a;
-			OCR1B = (uint16_t)t1_compare_b;
-			first_cycle = false;
+	if(first_cycle){
+		OCR1A = (uint16_t)t1_compare_a;
+		OCR1B = (uint16_t)t1_compare_b;
+		first_cycle = false;
 	}
 
-		//Initialise timer interrupt
-		TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
-		TCNT1 = 0;
-	}
+	#ifdef SITH
+		OCR1A = (uint16_t)t1_compare_a;
+		OCR1B = (uint16_t)t1_compare_b;
+	#endif
+
+	//Initialise timer interrupt
+	TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
+	TCNT1 = 0;
 }
 
 void soft_start(float* req_freq, int* req_mfc){
@@ -136,11 +128,13 @@ ISR(TIMER0_COMPB_vect){
 		SET_SW1;
 		isNegative = false;
 	}
+
 	if(change_duty == true){
 		OCR0A = t1_compare_a;
 		OCR1B = t1_compare_b;
 		change_duty = false;
-	}
+		}		
+		
 	TIMSK1 |= (1 << OCIE1B);
 	TIMSK1 |= (1 << OCIE1A);
 	TCNT1 = 0;

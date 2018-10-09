@@ -18,7 +18,6 @@ volatile uint8_t message_complete = false;
 volatile uint8_t receive_error = false;
 volatile uint8_t message_start = false;
 
-//#define SITH
 
 volatile float* frequency;
 volatile uint8_t* mfc;
@@ -69,7 +68,6 @@ int main(void)
 	//enable timers
 	driver_timer_initiate();
 	set_parameters(*frequency, *mfc);
-
 	//soft_start((float*)frequency, (int*)mfc);
 
     while (1){
@@ -77,7 +75,7 @@ int main(void)
 		#ifdef SITH
 			project_skywalker();
 		#endif
-
+		
 		if(message_complete == true){
 			UCSR0B &= ~(1 << RXEN0);
 			uart_transmit("\n\rFrom Microcontroller: ");
