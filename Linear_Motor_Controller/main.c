@@ -67,10 +67,43 @@ int main(void)
 
 	//enable timers
 	driver_timer_initiate();
-	set_parameters(*frequency, *mfc);
-	//soft_start((float*)frequency, (int*)mfc);
+	//set_parameters(*frequency, *mfc);
+	soft_start(*frequency, *mfc);
+
+	adc_initiate();
+	adc_start((float*)frequency);
 
     while (1){
+		if(testvalue){
+			uint16_t tmp = testadcvalue;
+			uint8_t thousands = (tmp/1000) + 48;
+			uint8_t hundreds = ((tmp%1000)/100) + 48;
+			uint8_t tens = (((tmp%1000)%100)/10) + 48;
+			uint8_t ones = ((((tmp%1000)%100)%10)) + 48;
+			char array[5];
+			array[0] = thousands;
+			array[1] = hundreds;
+			array[2] = tens;
+			array[3] = ones;
+			array[4] = '\0';
+			uart_transmit(array);
+			uart_transmit("\n\r");
+			testvalue = false;
+			_delay_ms(200);
+		}
+
+// 		int tmp = TCNT0;
+// 		int hundreds = tmp/100 + 48;
+// 		int tens = (tmp%100)/10 + 48;
+// 		int ones = ((tmp%100)%10) + 48;
+// 		char array[4];
+// 		array[0] = hundreds;
+// 		array[1] = tens;
+// 		array[2] = ones;
+// 		array[3] = '\0';
+// 		uart_transmit(array);
+// 		uart_transmit("\n\r");
+//		_delay_ms(500);
 
 		#ifdef SITH
 			project_skywalker();

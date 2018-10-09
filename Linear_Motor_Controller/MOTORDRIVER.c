@@ -21,7 +21,7 @@
 #define CHIGH 522
 #define x 150
 
-
+volatile int mfr;
  //Dead times in us 
  #define LOW_OFF_TIME 2 
  #define HIGH_OFF_TIME 8
@@ -41,9 +41,9 @@
 
  void driver_timer_initiate(void){
 	//Timer 1 8bit (no prescalar)
-	TCCR0B |= (1 << CS00);
-	OCR0A = HIGH_OFF_TIME_COUNT_VALUE;
-	OCR0B = LOW_OFF_TIME_COUNT_VALUE;
+	TCCR2B |= (1 << CS20);
+	OCR2A = HIGH_OFF_TIME_COUNT_VALUE;
+	OCR2B = LOW_OFF_TIME_COUNT_VALUE;
 	
 	//Timer 2 16bit (8 prescalar)
 	TCCR1B |= (1 << CS11);
@@ -63,6 +63,7 @@
  }
 
  void set_parameters(float frequency, uint8_t mfc){
+	mfr = (int)mfc;
 	float duty_cycle = (float)mfc/255;
 	float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
 	float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
@@ -90,12 +91,16 @@
 	TCNT1 = 0;
 }
 
-void soft_start(float* req_freq, int* req_mfc){
-
+void soft_start(float req_freq, int req_mfc){
+	unsigned int i = 0;
+	while(i != req_mfc){
+		set_parameters(req_freq, i);
+		i++;
+	}
 }
 
-ISR(TIMER0_COMPA_vect){	
-	TIMSK0 &= ~(1 << OCIE0A);
+ISR(TIMER2_COMPA_vect){	
+	TIMSK2 &= ~(1 << OCIE2A);
 	if(isNegative == false){
 		SET_SW3;
 	}
@@ -113,31 +118,48 @@ ISR(TIMER1_COMPA_vect){
 	}
 	TIMSK1 &= ~(1 << OCIE1A);
 	TIMSK1 &= ~(1 << OCIE1B);
-	TIMSK0 |= (1 << OCIE0B);
-	TCNT0 = 0;
-
+	TIMSK2 |= (1 << OCIE2B);
+	TCNT2 = 0;
 }
 
-ISR(TIMER0_COMPB_vect){
-	TIMSK0 &= ~(1 << OCIE0B);
-	if(isNegative == false){
-		SET_SW2;
-		isNegative = true;
+ISR(TIMER2_COMPB_vect){
+	TIMSK2 &= ~(1 << OCIE2B);
+	if(mfr == 0){
+		TIMSK2 &= ~(1 << OCIE2A);
+		TIMSK2 &= ~(1 << OCIE2B);
+		TIMSK1 &= ~(1 << OCIE1A);
+		TIMSK1 &= ~(1 << OCIE1B);
+		CLR_SW3;
+		CLR_SW4;
+		CLR_SW1;
+		CLR_SW2;
+		SET_SW3;
+		SET_SW4;
+		first_cycle = true;
+		
 	}
 	else{
-		SET_SW1;
-		isNegative = false;
+		if(isNegative == false){
+			SET_SW2;
+			isNegative = true;
+		}
+		else{
+			SET_SW1;
+			isNegative = false;
+		}
+
+		if(change_duty == true){
+			OCR1A = t1_compare_a;
+			OCR1B = t1_compare_b;
+			change_duty = false;
+			}		
+	
+		TIMSK1 |= (1 << OCIE1B);
+		TIMSK1 |= (1 << OCIE1A);
+		TCNT1 = 0;
 	}
 
-	if(change_duty == true){
-		OCR0A = t1_compare_a;
-		OCR1B = t1_compare_b;
-		change_duty = false;
-		}		
-		
-	TIMSK1 |= (1 << OCIE1B);
-	TIMSK1 |= (1 << OCIE1A);
-	TCNT1 = 0;
+	
 }
 
 ISR(TIMER1_COMPB_vect){
@@ -148,8 +170,8 @@ ISR(TIMER1_COMPB_vect){
 	else{
 		CLR_SW2;
 	}
-	TIMSK0 |= (1 << OCIE0A);
-	TCNT0 = 0;
+	TIMSK2 |= (1 << OCIE2A);
+	TCNT2 = 0;
 }
 
 void project_skywalker(){
