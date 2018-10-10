@@ -6,9 +6,6 @@
  */ 
 
 #include "includes.h"
-#define MAX_SIZE 50
-
-volatile static char comparison_command[MAX_SIZE] = "{\"x\":{\"mfc\":{\"req\":\"xxx\"},\"clr\":\"xx\"}}"; 
 
 //This function initializes UART receive and transmit 
 void uart_initiate(uint16_t UBRR_VALUE){
@@ -39,28 +36,15 @@ void uart_transmit(char* message){
 }
 
 //This function processes a message received by UART
-void process_message(char* message, int* mfc){
-	int value = 0;
-	//char tmp[3];
-	for(unsigned int i = 1; i < 4; i++){
-		value = value*10 + (message[i] - 48);
-		//tmp[i-1] = message[i];
+void process_message(char* message, uint8_t* mfc){
+	char buff[4];
+	char* end;
+	uint16_t len_mfc = mjson_find_string(message, strlen(message), "$.3.mfc.req", buff, sizeof(buff));
+	if (len_mfc != 0){
+		*mfc = (uint8_t) strtol(buff, &end, 10);
 	}
-// 		tmp[0] = message[1];
-// 		tmp[1] = message[2];
-// 		tmp[2] = message[3]; 
-//	unsigned int i = 0;
-// 	while(tmp[i] != '\0'){
-// 		value = value*10 + (tmp[i] - 48);
-// 		i++;
-// 	}
-
-// 	for(unsigned int i = 0; i < 3; i++){
-// 		value = value*10 + (tmp[i] - 48);
-// 	}
-
-	if(message[1] == 'p'){
-		uart_transmit("\n\rits here!\n\r");
+	uint16_t len_sith = mjson_find_string(message, strlen(message), "$.3.user.force", buff, sizeof(buff));
+	if((len_sith != 0) && (strcmp(buff, "on") == 0)){
+		force = true;
 	}
-	*mfc = value;
 }

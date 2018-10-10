@@ -129,6 +129,9 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="mjson.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="MOTORDRIVER.c">
       <SubType>compile</SubType>
     </Compile>

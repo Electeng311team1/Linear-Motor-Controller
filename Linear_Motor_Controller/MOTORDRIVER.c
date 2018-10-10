@@ -7,38 +7,7 @@
 
 #include "includes.h"
 
-#define AFLATLOW 208
-#define B 246
-#define CLOW 260
-#define D 292
-#define EFLAT 312
-#define E 328
-#define F 348
-#define G 393
-#define AFLAT 416
-#define A 440
-#define BFLAT 466
-#define CHIGH 522
-#define x 150
-
-volatile int mfr;
- //Dead times in us 
- #define LOW_OFF_TIME 2 
- #define HIGH_OFF_TIME 8
-
- #define LOW_OFF_TIME_COUNT_VALUE (LOW_OFF_TIME*8)
- #define HIGH_OFF_TIME_COUNT_VALUE (HIGH_OFF_TIME*8)
-
- //Switch defines
- #define SET_SW1 PORTB |= (1 << PB0)
- #define CLR_SW1 PORTB &= ~(1 << PB0) 
- #define SET_SW2 PORTD |= (1 << PD5)
- #define CLR_SW2 PORTD &= ~(1 << PD5)
- #define SET_SW3 PORTD |= (1 << PD7)
- #define CLR_SW3 PORTD &= ~(1 << PD7)
- #define SET_SW4 PORTD |= (1 << PD6)
- #define CLR_SW4 PORTD &= ~(1 << PD6) 
-
+//This function is used initiate the timers used to drive the motor
  void driver_timer_initiate(void){
 	//Timer 1 8bit (no prescalar)
 	TCCR2B |= (1 << CS20);
@@ -62,35 +31,37 @@ volatile int mfr;
 	first_cycle = true;
  }
 
+//This function is called to set the motor to drive to a given frequency and mass flow rate
  void set_parameters(float frequency, uint8_t mfc){
-	mfr = (int)mfc;
-	float duty_cycle = (float)mfc/255;
-	float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
-	float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
-
-	//Set T1 Compare
-	t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
-	t1_compare_b = (uint16_t)(on_time*1000);
-
-	isNegative = false;
-	change_duty = true;
-
-	if(first_cycle){
-		OCR1A = (uint16_t)t1_compare_a;
-		OCR1B = (uint16_t)t1_compare_b;
-		first_cycle = false;
+	if(mfc == 0){
+		stop_motor();
 	}
+	else{
+		mfr = mfc;
+		float duty_cycle = (float)mfc/255;
+		float off_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(1-duty_cycle);
+		float on_time = ((1000/(2*(frequency)))-(LOW_OFF_TIME+HIGH_OFF_TIME)/1000)*(duty_cycle);
 
-	#ifdef SITH
-		OCR1A = (uint16_t)t1_compare_a;
-		OCR1B = (uint16_t)t1_compare_b;
-	#endif
+		//Set T1 Compare
+		t1_compare_a = (uint16_t)((on_time+off_time+HIGH_OFF_TIME/1000)*1000);
+		t1_compare_b = (uint16_t)(on_time*1000);
+
+		isNegative = false;
+		change_duty = true;
+
+		if(first_cycle){
+			OCR1A = (uint16_t)t1_compare_a;
+			OCR1B = (uint16_t)t1_compare_b;
+			first_cycle = false;
+		}
+	}
 
 	//Initialise timer interrupt
 	TIMSK1 |= (1 << OCIE1A) | (1 << OCIE1B);
 	TCNT1 = 0;
 }
 
+//This function slowly ramps up the motor to the desired mass flow rate
 void soft_start(float req_freq, int req_mfc){
 	unsigned int i = 0;
 	while(i != req_mfc){
@@ -99,7 +70,12 @@ void soft_start(float req_freq, int req_mfc){
 	}
 }
 
+//This function will force a hard stop to the driving of the motor
 void stop_motor(){
+	TIMSK1 &= ~(1 << OCIE1B);
+	TIMSK1 &= ~(1 << OCIE1A);
+	TIMSK2 &= ~(1 << OCIE2A);
+	TIMSK2 &= ~(1 << OCIE2B);
 	CLR_SW1;
 	_delay_ms(10);
 	CLR_SW2;
@@ -107,12 +83,32 @@ void stop_motor(){
 	SET_SW3;
 	_delay_ms(10);
 	SET_SW4;
-	TIMSK1 &= ~(1 << OCIE1B);
-	TIMSK1 &= ~(1 << OCIE1A);
-	TIMSK2 &= ~(1 << OCIE2A);
-	TIMSK2 &= ~(1 << OCIE2B);
+
+	first_cycle = true;
+	resonance_counter = 0;
 }
 
+//This function calculates resonant frequency by half driving the motor for a brief amount of time
+//then reading the ADC values representing the back emf. Following this peak detection is used to
+//determine the frequency of the system. The frequency will then be automatically adjust accordingly
+void calculate_resonance(float* freq, uint8_t mfc){
+	set_parameters(*freq, 150);
+	_delay_ms(200);
+ 	stop_driving = false;
+ 	while(!stop_driving){};
+
+ 	stop_motor();
+
+// 	//adc_start(freq);
+	//_delay_ms(500);
+ 
+ 	//calculate resonance
+ 	
+	set_parameters(*freq, mfc);
+	
+}
+
+//Timer used to time high side discharge times of P type MOSFETS
 ISR(TIMER2_COMPA_vect){	
 	TIMSK2 &= ~(1 << OCIE2A);
 	if(isNegative == false){
@@ -123,6 +119,7 @@ ISR(TIMER2_COMPA_vect){
 	}
 }
 
+//Timer used to time on time of driver signal
 ISR(TIMER1_COMPA_vect){
 	if(isNegative == false){
 		CLR_SW4;
@@ -136,21 +133,11 @@ ISR(TIMER1_COMPA_vect){
 	TCNT2 = 0;
 }
 
+//Timer used to time low side discharge times of N type MOSFETS
 ISR(TIMER2_COMPB_vect){
 	TIMSK2 &= ~(1 << OCIE2B);
 	if(mfr == 0){
-		TIMSK2 &= ~(1 << OCIE2A);
-		TIMSK2 &= ~(1 << OCIE2B);
-		TIMSK1 &= ~(1 << OCIE1A);
-		TIMSK1 &= ~(1 << OCIE1B);
-		CLR_SW3;
-		CLR_SW4;
-		CLR_SW1;
-		CLR_SW2;
-		SET_SW3;
-		SET_SW4;
-		first_cycle = true;
-		
+		stop_motor();		
 	}
 	else{
 		if(isNegative == false){
@@ -160,14 +147,24 @@ ISR(TIMER2_COMPB_vect){
 		else{
 			SET_SW1;
 			isNegative = false;
+			if(resonance_counter < CYCLES){
+				resonance_counter++;
+				if(change_duty == true){
+					OCR1A = t1_compare_a;
+					OCR1B = t1_compare_b;
+					change_duty = false;
+				}	
+			}
+			else{
+				check_resonance = true;
+				resonance_counter = 0;
+			}
+			if(force){
+				resonance_counter = 0;
+			}
 		}
 
-		if(change_duty == true){
-			OCR1A = t1_compare_a;
-			OCR1B = t1_compare_b;
-			change_duty = false;
-			}		
-	
+		//Continue to drive next stage of H-bridge
 		TIMSK1 |= (1 << OCIE1B);
 		TIMSK1 |= (1 << OCIE1A);
 		TCNT1 = 0;
@@ -175,6 +172,7 @@ ISR(TIMER2_COMPB_vect){
 		
 }
 
+//Timer used to time on and off time of driver signal
 ISR(TIMER1_COMPB_vect){
 	TIMSK1 &= ~(1 << OCIE1B);
 	if(isNegative == false){
@@ -183,10 +181,13 @@ ISR(TIMER1_COMPB_vect){
 	else{
 		CLR_SW2;
 	}
+	
 	TIMSK2 |= (1 << OCIE2A);
 	TCNT2 = 0;
+	stop_driving = true;
 }
 
+//Function to play the Imperial March
 void project_skywalker(){
 	set_parameters(CLOW, x);
 	_delay_ms(560);
